@@ -1,7 +1,8 @@
 CC=gcc
 CFLAGS=-c -g -Wall
+LIBS=-lm
 SOURCE:=$(wildcard src/*.c)
-SOURCE:=$(filter-out src/fft.c, $(SOURCE))
+# SOURCE:=$(filter-out src/fft.c, $(SOURCE))
 OBJ=$(SOURCE:.c=.o)
 EXE=main
 
@@ -13,7 +14,7 @@ run: clean all
 all: $(SOURCE) $(EXE)
 
 $(EXE): $(OBJ)
-	$(CC) $(OBJ) -o $@
+	$(CC) $(OBJ) -o $@ $(LIBS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $< -o $@

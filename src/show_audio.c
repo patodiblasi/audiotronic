@@ -48,6 +48,6 @@ void draw_wave(int16_t* samples, unsigned int length)
 void print_wave_values(int16_t* samples, unsigned int length)
 {
 	for (int i = 0; i < length; i++) {
-		printf("\n%d", (short int)samples[i]);
+		printf("\n%d\t%d", i, (short int)samples[i]);
 	}
 }
