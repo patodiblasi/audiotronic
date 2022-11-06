@@ -9,15 +9,14 @@
 #include "process_audio.h"
 #include "show_audio.h"
 
-#define INPUT_FILE "input/prueba2.wav"
-
 int main(void)
 {
 	audio_config config = new_audio_config(20, 22050);
 	printf("Leyendo de a %d samples a %d Hz (%.2f ms)", config.min_samples, config.min_sample_rate, config.min_samples_duration_ms);
 
 	////////////////////////////////////////////////////////////////////////////
-	FILE* fp = open_audio(INPUT_FILE);
+	// FILE* fp = open_audio_file("input/prueba2.wav");
+	FILE* fp = open_audio_device("front:CARD=USB,DEV=0", 44100);
 	if (!fp) {
 		printf ("\nError abriendo audio.\n");
 	}

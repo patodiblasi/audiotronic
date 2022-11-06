@@ -10,7 +10,8 @@ typedef struct {
 	int16_t* samples;
 } samples_chunk;
 
-FILE* open_audio(const char* filename);
+FILE* open_audio_file(const char* filename);
+FILE* open_audio_device(const char* filename, unsigned int sample_rate);
 void close_audio(FILE* fp);
 samples_chunk read_audio(FILE* fp, unsigned int samples);
 

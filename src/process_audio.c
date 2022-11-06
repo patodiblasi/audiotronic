@@ -36,3 +36,4 @@ void signal_to_fft(double *real, double *imag, uint16_t samples, double sampling
 		fft(real, imag, samples);
 	#endif
 }
+
