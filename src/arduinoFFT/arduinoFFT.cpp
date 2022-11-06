@@ -62,9 +62,11 @@ void arduinoFFT::Compute(uint8_t dir)
 				Swap(&this->_vImag[i], &this->_vImag[j]);
 		}
 		uint16_t k = (this->_samples >> 1);
-		while (k <= j) {
+		// Si k y j son ambos 0, entra en un bucle infinito
+		while (k <= j && (k != 0 || j != 0)) {
 			j -= k;
 			k >>= 1;
+			// printf("Compute while DURANTE: %d %d %d\n", i, k, j);
 		}
 		j += k;
 	}
@@ -472,7 +474,7 @@ double arduinoFFT::MajorPeakParabola()
 		double x = -b/(2*a);
 
 		// And magnitude is at the extrema of the parabola if you want It...
-		// double y = a*x*x+b*x+c;  
+		// double y = a*x*x+b*x+c;
 
 		// Convert to frequency
 		freq = (x  * this->_samplingFrequency) / (this->_samples);

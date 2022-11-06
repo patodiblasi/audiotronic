@@ -21,6 +21,10 @@
 
 #ifndef arduinoFFT_h /* Prevent loading library twice */
 #define arduinoFFT_h
+
+// Agregados Pato para Linux:
+#include <cstdint>
+
 #ifdef ARDUINO
 	#if ARDUINO >= 100
 		#include "Arduino.h"
