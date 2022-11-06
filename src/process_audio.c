@@ -19,3 +19,20 @@ audio_config new_audio_config(int min_freq, int max_freq)
 
 	return config;
 }
+
+void signal_to_fft(double *real, double *imag, uint16_t samples, double sampling_frequency)
+{
+	#if FFT_MODULE_ARDUINO
+		// Con arduinoFFT.cpp:
+		arduinoFFT fftInstance = arduinoFFT(real, imag, samples, sampling_frequency);
+
+		// Compute FFT
+		fftInstance.DCRemoval();
+		fftInstance.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+		fftInstance.Compute(FFT_FORWARD);
+		fftInstance.ComplexToMagnitude();
+	#else
+		// Con fft.c:
+		fft(real, imag, samples);
+	#endif
+}

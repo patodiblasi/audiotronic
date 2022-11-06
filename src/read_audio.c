@@ -22,8 +22,8 @@ void close_audio(FILE* fp)
 samples_chunk read_audio(FILE* fp, unsigned int samples_count)
 {
 	samples_chunk chunk;
-	chunk.samples = malloc(sizeof(int16_t) * samples_count);
-	chunk.length = (int16_t)fread(chunk.samples, 2, samples_count, fp);
+	chunk.samples = (int16_t*)malloc(sizeof(int16_t) * samples_count);
+	chunk.length = (unsigned int)fread(chunk.samples, 2, samples_count, fp);
 
 	return chunk;
 }
