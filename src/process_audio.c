@@ -22,7 +22,7 @@ audio_config new_audio_config(int min_freq, int max_freq)
 
 void signal_to_fft(double *real, double *imag, uint16_t samples, double sampling_frequency)
 {
-	#if FFT_MODULE_ARDUINO
+	#if USE_ARDUINO_FFT_MODULE
 		// Con arduinoFFT.cpp:
 		arduinoFFT fftInstance = arduinoFFT(real, imag, samples, sampling_frequency);
 

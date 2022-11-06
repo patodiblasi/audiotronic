@@ -8,7 +8,7 @@ void draw_wave(int16_t* samples, unsigned int length)
 
 	// Qué tanto se comprime gráficamente el dibujo.
 	// La cantidad de samples indicados por reduce se promedian para formar un solo valor
-	int reduce = 20;
+	int reduce = 200;
 
 	int scale = 200;
 	int limit = scale / 2;

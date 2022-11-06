@@ -1,5 +1,5 @@
-#ifndef FFT_INCLUDED
-#define FFT_INCLUDED
+#ifndef IS_FFT_INCLUDED
+#define IS_FFT_INCLUDED
 
 #include <math.h>
 

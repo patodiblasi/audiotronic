@@ -1,9 +1,15 @@
-#ifndef READ_AUDIO_INCLUDED
-#define READ_AUDIO_INCLUDED
+#ifndef IS_READ_AUDIO_INCLUDED
+#define IS_READ_AUDIO_INCLUDED
+
+#ifndef SHOW_FFMPEG_OUTPUT
+	#define SHOW_FFMPEG_OUTPUT 0
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <errno.h>
 
 typedef struct {
 	unsigned int length;
@@ -11,7 +17,7 @@ typedef struct {
 } samples_chunk;
 
 FILE* open_audio_file(const char* filename);
-FILE* open_audio_device(const char* filename, unsigned int sample_rate);
+FILE* open_audio_device(const char* device, const char* filename, unsigned int sample_rate);
 void close_audio(FILE* fp);
 samples_chunk read_audio(FILE* fp, unsigned int samples);
 

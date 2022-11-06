@@ -2,29 +2,48 @@
 
 FILE* open_audio_file(const char* filename)
 {
-	char* command;
-	asprintf(&command, "ffmpeg -loglevel quiet -i %s -f s16le -ac 1 -", filename);
-	printf("\nAbriendo archivo: %s\n", filename);
+	char command[200] = "";
+	char command_format[100] = "ffmpeg";
 
-	// Open WAV file with FFmpeg and read raw samples via the pipe.
-	FILE* fp = popen(command, "r");
-	free(command);
-	return fp;
+	if (!SHOW_FFMPEG_OUTPUT) {
+		strcat(command_format, " -loglevel quiet");
+	}
+	strcat(command_format, " -i %s -f s16le -ac 1 -");
+
+	sprintf(command, command_format, filename);
+
+	printf("\nAbriendo pipe: %s\n", command);
+	return popen(command, "r");
 }
 
-FILE* open_audio_device(const char* filename, unsigned int sample_rate)
+FILE* open_audio_device(const char* device, const char* filename, unsigned int sample_rate)
 {
 	// Captura del mic Plantronics:
 	// ffmpeg -f alsa -sample_rate 44100 -i front:CARD=USB,DEV=0 -t 30 out.wav
+	char command[200] = "";
+	char command_format[100] = "ffmpeg";
+	char command_device_options[100] = "";
 
-	char* command;
-	asprintf(&command, "ffmpeg -loglevel quiet -f alsa -sample_rate %d -i %s -t 30 -f s16le -ac 1 -", sample_rate, filename);
-	printf("\nAbriendo dispositivo: %s\n", filename);
+	if (!SHOW_FFMPEG_OUTPUT) {
+		strcat(command_format, " -loglevel quiet");
+	}
 
-	// Open WAV file with FFmpeg and read raw samples via the pipe.
-	FILE* fp = popen(command, "r");
-	free(command);
-	return fp;
+	if (strcmp(device, "alsa") == 0) {
+		// alsa permite opción sample_rate
+		sprintf(command_device_options, " -f %s -sample_rate %d", device, sample_rate);
+	} else {
+		// avfoundation no permite opción sample_rate
+		sprintf(command_device_options, " -f %s", device);
+	}
+	// TODO: otros?
+
+	strcat(command_format, command_device_options);
+	strcat(command_format, " -i %s -t 30 -f s16le -ac 1 -");
+
+	sprintf(command, command_format, filename);
+
+	printf("\nAbriendo pipe: %s\n", command);
+	return popen(command, "r");
 }
 
 void close_audio(FILE* fp)

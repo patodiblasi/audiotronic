@@ -1,5 +1,5 @@
-#ifndef SHOW_AUDIO_INCLUDED
-#define SHOW_AUDIO_INCLUDED
+#ifndef IS_SHOW_AUDIO_INCLUDED
+#define IS_SHOW_AUDIO_INCLUDED
 
 #include <stdio.h>
 #include <stdlib.h>

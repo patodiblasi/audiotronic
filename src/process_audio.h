@@ -1,11 +1,13 @@
-#ifndef PROCESS_AUDIO_INCLUDED
-#define PROCESS_AUDIO_INCLUDED
+#ifndef IS_PROCESS_AUDIO_INCLUDED
+#define IS_PROCESS_AUDIO_INCLUDED
 
-#define FFT_MODULE_ARDUINO 1 // Si es true, usa el módulo de Arduino para FFT
+#ifndef USE_ARDUINO_FFT_MODULE
+	#define USE_ARDUINO_FFT_MODULE 1 // Si es true, usa el módulo de Arduino para FFT
+#endif
 
 #include <stdint.h>
 
-#if FFT_MODULE_ARDUINO
+#if USE_ARDUINO_FFT_MODULE
 	#include "arduinoFFT/arduinoFFT.h"
 #else
 	#include "fft.h"
