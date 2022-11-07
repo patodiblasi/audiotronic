@@ -28,9 +28,6 @@ arduino:
 $(EXE): $(OBJ)
 	$(CC) $(CONSTANTS) $(OBJ) $(LIBS) $(CPLSDL) $(LIBSDL) src/arduinoFFT/arduinoFFT.o -o $@
 
-src/sdl_common.o: src/sdl_common.c
-	$(CC) $(CFLAGS) $(CONSTANTS) $(CPLSDL) $(LIBSDL) $< -o $@
-
 %.o: %.c
 	$(CC) $(CFLAGS) $(CONSTANTS) $(CPLSDL) $(LIBSDL) $< -o $@
 
