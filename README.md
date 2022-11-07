@@ -3,6 +3,7 @@
 -  g++
 -  ffmpeg
 -  SDL
+-  sdl2_image
 
 ## Comandos
 
