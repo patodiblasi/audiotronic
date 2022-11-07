@@ -6,6 +6,11 @@ SOURCE:=$(wildcard src/*.c)
 OBJ=$(SOURCE:.c=.o)
 EXE=main
 
+SDLCFG := sdl2-config
+CPLSDL = $(shell $(SDLCFG) --cflags)
+LIBSDL = $(shell $(SDLCFG) --libs)
+LIBSDL += -lSDL2_image
+
 CONSTANTS=-D SHOW_FFMPEG_OUTPUT=0 -D USE_ARDUINO_FFT_MODULE=1
 
 .PHONY: clean run
@@ -21,10 +26,13 @@ arduino:
 	g++ -c -g -Wall src/arduinoFFT/arduinoFFT.cpp -o src/arduinoFFT/arduinoFFT.o
 
 $(EXE): $(OBJ)
-	$(CC) $(CONSTANTS) $(OBJ) src/arduinoFFT/arduinoFFT.o -o $@ $(LIBS)
+	$(CC) $(CONSTANTS) $(OBJ) $(LIBS) $(CPLSDL) $(LIBSDL) src/arduinoFFT/arduinoFFT.o -o $@
+
+src/sdl_common.o: src/sdl_common.c
+	$(CC) $(CFLAGS) $(CONSTANTS) $(CPLSDL) $(LIBSDL) $< -o $@
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(CONSTANTS) $< -o $@
+	$(CC) $(CFLAGS) $(CONSTANTS) $(CPLSDL) $(LIBSDL) $< -o $@
 
 clean:
 	rm -f src/arduinoFFT/arduinoFFT.o
