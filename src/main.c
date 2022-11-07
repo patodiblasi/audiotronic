@@ -49,6 +49,13 @@ int main(void)
 
 		signal_to_fft(real, imag, chunk.length, config.min_sample_rate);
 
+		// Cada posición del array corresponde a una banda de frecuencia.
+		// Todas las posiciones son del mismo ancho: sample_rate / length
+		// Tener en cuenta que el oído no percibe linealmente las frecuencias
+		// (una octava es el doble de frecuencia). Por esto, una frecuencia de
+		// 100 Hz se parece a una de 200 Hz en igual medida que una de 10 KHz
+		// se parece a otra de 20 KHz.
+
 		////////////////////////////////////////////////////////////////////////
 		// printf("\n-------------------------\nFFT:\n");
 		// for (unsigned int i = 0; i < chunk.length; i++) {

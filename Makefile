@@ -6,13 +6,13 @@ SOURCE:=$(wildcard src/*.c)
 OBJ=$(SOURCE:.c=.o)
 EXE=main
 
-CONSTANTS=-D SHOW_FFMPEG_OUTPUT=1 -D USE_ARDUINO_FFT_MODULE=1
+CONSTANTS=-D SHOW_FFMPEG_OUTPUT=0 -D USE_ARDUINO_FFT_MODULE=1
 
-.PHONY: clean clean_run
+.PHONY: clean run
 
-default: clean run
+default: clean all run
 
-run: all
+run:
 	./$(EXE)
 
 all: $(SOURCE) arduino $(EXE)
