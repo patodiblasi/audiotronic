@@ -2,9 +2,6 @@
 // https://rosettacode.org/wiki/Fast_Fourier_transform#C
 // https://batchloaf.wordpress.com/2017/02/10/a-simple-way-to-read-and-write-audio-and-video-files-in-c-using-ffmpeg/
 
-#define SHOW_FFMPEG_OUTPUT 1
-#define USE_ARDUINO_FFT_MODULE 1
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,6 +9,7 @@
 #include "read_audio.h"
 #include "process_audio.h"
 #include "show_audio.h"
+
 
 int main(void)
 {
@@ -36,9 +34,6 @@ int main(void)
 			break;
 		}
 
-		// printf("\n\n");
-		// printf("\n-------------------------\nSAMPLES:\n");
-		// printf("SAMPLES: ");
 		draw_wave(chunk.samples, chunk.length);
 		// print_wave_values(chunk.samples, chunk.length);
 

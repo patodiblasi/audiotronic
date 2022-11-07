@@ -6,6 +6,8 @@ SOURCE:=$(wildcard src/*.c)
 OBJ=$(SOURCE:.c=.o)
 EXE=main
 
+CONSTANTS=-D SHOW_FFMPEG_OUTPUT=1 -D USE_ARDUINO_FFT_MODULE=1
+
 .PHONY: clean clean_run
 
 default: clean run
@@ -19,10 +21,10 @@ arduino:
 	g++ -c -g -Wall src/arduinoFFT/arduinoFFT.cpp -o src/arduinoFFT/arduinoFFT.o
 
 $(EXE): $(OBJ)
-	$(CC) $(OBJ) src/arduinoFFT/arduinoFFT.o -o $@ $(LIBS)
+	$(CC) $(CONSTANTS) $(OBJ) src/arduinoFFT/arduinoFFT.o -o $@ $(LIBS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(CONSTANTS) $< -o $@
 
 clean:
 	rm -f src/arduinoFFT/arduinoFFT.o
