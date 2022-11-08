@@ -51,6 +51,7 @@ void close_audio(FILE* fp)
 	printf("\nCerrando archivo\n");
 	fflush(fp);
 	pclose(fp);
+	fp = NULL;
 }
 
 samples_chunk read_audio(FILE* fp, unsigned int samples_count)

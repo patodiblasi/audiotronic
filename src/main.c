@@ -8,10 +8,14 @@
 #include <unistd.h>
 #include <errno.h>
 #include <time.h>
+#include <signal.h>
 #include "main_audio.h"
 #include "sdl_screen.h"
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
+t_audio_info audio_info;
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Retorna tiempo en microsegundos desde algún punto desconocido
 long unsigned int get_utime()
@@ -31,13 +35,22 @@ long unsigned int get_utime()
 	return (now.tv_sec  - start_time.tv_sec) * 1000000 + (now.tv_nsec - start_time.tv_nsec) / 1000;
 }
 
+void on_exit_signal(int s)
+{
+	printf("\nSe recibió señal de salida %d.\n", s);
+	audio_end(&audio_info);
+	exit(0);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(void)
 {
+	signal(SIGINT, on_exit_signal);
+	signal(SIGTERM, on_exit_signal);
+
 	printf("\n\n");
 
-	t_audio_info audio_info;
 	audio_setup(&audio_info);
 
 	// sdl_screen screen = start_screen(800, 600);

@@ -13,8 +13,8 @@ void audio_setup(t_audio_info* audio_info)
 		audio_info->config.min_samples_duration_ms
 	);
 
-	audio_info->fp = open_audio_file("audios/sentinel.wav");
-	// FILE* fp = open_audio_device("alsa", "front:CARD=USB,DEV=0", config.min_sample_rate);
+	// audio_info->fp = open_audio_file("audios/sentinel.wav");
+	audio_info->fp = open_audio_device("alsa", "front:CARD=USB,DEV=0", audio_info->config.min_sample_rate);
 	if (!audio_info->fp) {
 		fprintf(stderr, "\nError abriendo audio.\n");
 	}
