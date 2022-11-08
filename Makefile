@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -g -Wall
+CFLAGS=-c -g -Wall -O3
 LIBS=-lm
 SOURCE:=$(wildcard src/*.c)
 # SOURCE:=$(filter-out src/fft.c, $(SOURCE))
