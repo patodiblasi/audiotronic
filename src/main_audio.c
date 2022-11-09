@@ -40,8 +40,8 @@ int audio_loop_start(t_audio_info* audio_info)
 
 	audio_info->empty_stream_count = 0;
 
-	draw_wave(audio_info->chunk.samples, audio_info->chunk.length);
-	// print_wave_values(chunk.samples, chunk.length);
+	draw_wave(audio_info->chunk.samples, audio_info->chunk.length, 300, 30);
+	// print_wave_values(audio_info->chunk.samples, audio_info->chunk.length);
 
 	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
 	size_t fft_size = sizeof(double) * audio_info->chunk.length;
@@ -52,6 +52,7 @@ int audio_loop_start(t_audio_info* audio_info)
 		audio_info->real[i] = (double)(audio_info->chunk.samples[i]);
 		audio_info->imag[i] = 0;
 	}
+
 	signal_to_fft(audio_info->real, audio_info->imag, audio_info->chunk.length, (double)audio_info->config.min_sample_rate);
 
 	// Cada posición del array corresponde a una banda de frecuencia.

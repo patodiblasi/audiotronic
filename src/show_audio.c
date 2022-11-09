@@ -1,44 +1,53 @@
 #include "show_audio.h"
 
-void draw_wave(int16_t* samples, unsigned int length)
+// samples_per_line: Indica qué tanto se comprime verticalmente el dibujo.
+// La cantidad de samples indicados por samples_per_line se promedian para formar una sola línea.
+// multiplier: Multiplicador para la amplitud. Si el resultado excede el máximo, se cropea.
+void draw_wave(int16_t* samples, unsigned int length, unsigned int samples_per_line, double multiplier)
 {
+	unsigned int max_amplitude = 65535;
+
 	int i = 0;
 	int j = 0;
 	int r = 0;
 
-	// Qué tanto se comprime gráficamente el dibujo.
-	// La cantidad de samples indicados por reduce se promedian para formar un solo valor
-	int reduce = 200;
-
 	int scale = 200;
-	int limit = scale / 2;
+	int col_limit = scale / 2;
 
-	for (i = 0; i < length; i += reduce) {
-		int sum_to_reduce = 0;
-		int sum_count = reduce;
+	for (i = 0; i < length; i += samples_per_line) {
+		int line_sum = 0;
+		int sum_count = samples_per_line;
 		if (i + sum_count > length) {
 			sum_count = length - i;
 		}
 
 		for (r = 0; r < sum_count; r++) {
-			sum_to_reduce += limit * samples[i + r] / (double)65535;
+			line_sum += samples[i + r];
 		}
-		// printf("\n%d %d", sum_to_reduce, sum_count);
+
 		// TODO: optimizar con shift?
-		int amplitude_percentage = sum_to_reduce / sum_count;
+		int amplitude_columns = col_limit * multiplier * line_sum / (double)(sum_count * max_amplitude);
+
+		if (amplitude_columns > col_limit) {
+			amplitude_columns = col_limit;
+		} else if (amplitude_columns < -col_limit) {
+			amplitude_columns = -col_limit;
+		}
+
+
 		printf("\n");
-		if (amplitude_percentage < 0) {
-			for (j = -limit; j < amplitude_percentage; j++) {
+		if (amplitude_columns < 0) {
+			for (j = -col_limit; j < amplitude_columns; j++) {
 				printf(" ");
 			}
-			for (j = amplitude_percentage; j < 0; j++) {
+			for (j = amplitude_columns; j < 0; j++) {
 				printf("-");
 			}
 		} else {
-			for (j = -limit; j < 0; j++) {
+			for (j = -col_limit; j < 0; j++) {
 				printf(" ");
 			}
-			for (j = 0; j < amplitude_percentage; j++) {
+			for (j = 0; j < amplitude_columns; j++) {
 				printf("-");
 			}
 		}
