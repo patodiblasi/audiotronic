@@ -1,11 +1,15 @@
 #include "main_audio.h"
 #include "show_audio.h"
 
+#define MIN_FREQ 20
+#define MAX_FREQ 22050
+#define AUDIO_DRIVER "alsa"
+#define AUDIO_INPUT_DEVICE "front:CARD=USB,DEV=0"
 
 void audio_setup(t_audio_info* audio_info)
 {
 	audio_info->empty_stream_count = 0;
-	audio_info->config = new_audio_config(20, 22050);
+	audio_info->config = new_audio_config(MIN_FREQ, MAX_FREQ);
 
 	printf("Leyendo de a %d samples a %d Hz (%.2f ms)",
 		audio_info->config.min_samples,
@@ -14,7 +18,7 @@ void audio_setup(t_audio_info* audio_info)
 	);
 
 	// audio_info->fp = open_audio_file("audios/sentinel.wav");
-	audio_info->fp = open_audio_device("alsa", "front:CARD=USB,DEV=0", audio_info->config.min_sample_rate);
+	audio_info->fp = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
 	if (!audio_info->fp) {
 		fprintf(stderr, "\nError abriendo audio.\n");
 	}
