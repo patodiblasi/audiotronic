@@ -141,9 +141,18 @@ double bpf_sum(double f_min, double f_max, double *fft_real, unsigned int fft_le
 // como si calculara el área de una función discreta, segmentada por cada posición.
 double bpf_average(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate)
 {
-	double sum = bpf_sum(f_min, f_max, fft_real, fft_length, fft_sample_rate);
+	double p_min = frequency_to_fft_index(f_min, fft_length, fft_sample_rate);
+	double p_max = frequency_to_fft_index(f_max, fft_length, fft_sample_rate);
+	unsigned int i_min = ceil(p_min);
+	unsigned int i_max = floor(p_max);
+
+	// Para prevenir imprecisiones por redondeo:
+	if (p_min > i_min) p_min = i_min;
+	if (p_max < i_max) p_max = i_max;
 
 	if (p_max == p_min) return 0;
+
+	double sum = bpf_sum(f_min, f_max, fft_real, fft_length, fft_sample_rate);
 
 	// Promedio:
 	return sum / (p_max - p_min);
