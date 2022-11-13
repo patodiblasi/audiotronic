@@ -109,6 +109,8 @@ double bpf_average(double f_min, double f_max, double *fft_real, unsigned int ff
 	if (p_min > i_min) p_min = i_min;
 	if (p_max < i_max) p_max = i_max;
 
+	if (p_max == p_min) return 0;
+
 	double sum = 0;
 
 	if (i_min >= 1) {
