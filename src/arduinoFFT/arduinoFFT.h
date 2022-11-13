@@ -22,9 +22,6 @@
 #ifndef arduinoFFT_h /* Prevent loading library twice */
 #define arduinoFFT_h
 
-// Agregados Pato para Linux:
-#include <cstdint>
-
 #ifdef ARDUINO
 	#if ARDUINO >= 100
 		#include "Arduino.h"
@@ -41,6 +38,9 @@
 	#include <math.h>
 	#include "defs.h"
 	#include "types.h"
+
+	// Agregados Pato para Linux:
+	#include <cstdint>
 #endif
 
 #define FFT_LIB_REV 0x14
