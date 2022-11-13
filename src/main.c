@@ -52,7 +52,10 @@ int main(void)
 
 	printf("\n\n");
 
-	audio_setup(&audio_info);
+	if (!audio_setup(&audio_info)) {
+		audio_end(&audio_info);
+		exit(0);
+	}
 
 	// sdl_screen screen = start_screen(800, 600);
 	// if (!screen.is_ok) {

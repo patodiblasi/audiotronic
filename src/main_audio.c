@@ -6,7 +6,9 @@
 #define AUDIO_DRIVER "alsa"
 #define AUDIO_INPUT_DEVICE "front:CARD=USB,DEV=0"
 
-void audio_setup(t_audio_info* audio_info)
+// En Linux, para listar devices: arecord -L
+
+int audio_setup(t_audio_info* audio_info)
 {
 	audio_info->empty_stream_count = 0;
 	audio_info->config = new_audio_config(MIN_FREQ, MAX_FREQ);
@@ -17,11 +19,15 @@ void audio_setup(t_audio_info* audio_info)
 		audio_info->config.min_samples_duration_ms
 	);
 
-	// audio_info->fp = open_audio_file("audios/sentinel.wav");
+	// audio_info->fp = open_audio_file("audios/sweep_log.wav");
 	audio_info->fp = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
 	if (!audio_info->fp) {
 		fprintf(stderr, "\nError abriendo audio.\n");
+		return 0;
 	}
+
+	screen_start();
+	return 1;
 }
 
 int audio_loop_start(t_audio_info* audio_info)
@@ -40,9 +46,6 @@ int audio_loop_start(t_audio_info* audio_info)
 
 	audio_info->empty_stream_count = 0;
 
-	// draw_wave(audio_info->chunk.samples, audio_info->chunk.length, 300, 30);
-	// print_wave_values(audio_info->real, audio_info->chunk.length);
-
 	// OJO: el input de la FFT tiene que ser en cantidades potencia de 2
 	size_t fft_size = sizeof(double) * audio_info->chunk.length;
 	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
@@ -58,12 +61,8 @@ int audio_loop_start(t_audio_info* audio_info)
 
 	signal_to_fft(audio_info->real, audio_info->imag, audio_info->chunk.length, (double)audio_info->config.min_sample_rate);
 
+	screen_draw_fft(audio_info->real, audio_info->chunk.length, (double)audio_info->config.min_sample_rate, 30);
 
-	////////////////////////////////////////////////////////////////////////
-	// printf("\n-------------------------\nFFT:\n");
-	// for (unsigned int i = 0; i < chunk.length; i++) {
-	// 	printf("\n%d\t%d\t%.2f\t%.2f", i, chunk.samples[i], real[i], imag[i]);
-	// }
 	return 1;
 }
 
@@ -81,5 +80,6 @@ int audio_loop_end(t_audio_info* audio_info)
 
 void audio_end(t_audio_info* audio_info)
 {
+	screen_end();
 	close_audio(audio_info->fp);
 }

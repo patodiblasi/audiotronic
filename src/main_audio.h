@@ -13,7 +13,7 @@ typedef struct {
 	audio_config config;
 } t_audio_info;
 
-void audio_setup(t_audio_info* audio_info);
+int audio_setup(t_audio_info* audio_info);
 int audio_loop_start(t_audio_info* audio_info);
 int audio_loop_end(t_audio_info* audio_info);
 void audio_end(t_audio_info* audio_info);

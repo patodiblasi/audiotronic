@@ -1,6 +1,9 @@
 CC=g++
-CFLAGS=-c -g -Wall -O3
-LIBS=-lm
+# CFLAGS=-c -Wall -O3
+# Debug:
+CFLAGS=-c -Wall -g
+
+LIBS=-lm -lncurses
 SOURCE:=$(wildcard src/*.c)
 # SOURCE:=$(filter-out src/fft.c, $(SOURCE))
 OBJ=$(SOURCE:.c=.o)
@@ -26,7 +29,7 @@ arduino:
 	g++ -c -g -Wall src/arduinoFFT/arduinoFFT.cpp -o src/arduinoFFT/arduinoFFT.o
 
 $(EXE): $(OBJ)
-	$(CC) $(CONSTANTS) $(OBJ) $(LIBS) $(CPLSDL) $(LIBSDL) src/arduinoFFT/arduinoFFT.o -o $@
+	$(CC) $(CONSTANTS) $(OBJ) $(LIBS) $(CPLSDL) $(LIBSDL) -g src/arduinoFFT/arduinoFFT.o -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(CONSTANTS) $(CPLSDL) $(LIBSDL) $< -o $@
