@@ -46,7 +46,7 @@ double fft_bin_bandwidth(unsigned int fft_length, double fft_sample_rate)
 	// Con N bins:
 	// Bandwidth: bw = 1 (T * N) = (1 / T) * (1 / N) = sample_rate / N
 
-	return fft_sample_rate / fft_length;
+	return fft_sample_rate / (double)fft_length;
 }
 
 // Relación entre frecuencia e índice:
@@ -64,13 +64,13 @@ double fft_index_to_frequency(unsigned int fft_index, unsigned int fft_length, d
 
 	double bw = fft_bin_bandwidth(fft_length, fft_sample_rate);
 
-	if (fft_index < fft_length / 2.0) {
+	if (fft_index < (double)fft_length / 2.0) {
 		// Para 0 <= i < N/2: f = i * bw
-		return fft_index * bw;
+		return (double)fft_index * bw;
 	}
 
 	// Para N/2 <= i < N: f = (i - N) * bw
-	return (int)(fft_index - fft_length) * bw;
+	return ((double)fft_index - (double)fft_length) * bw;
 }
 
 // La frecuencia puede ser negativa (corresponde a la 2da parte del array de FFT).
@@ -82,23 +82,20 @@ double frequency_to_fft_index(double frequency, unsigned int fft_length, double 
 	double bw = fft_bin_bandwidth(fft_length, fft_sample_rate);
 	double bw_half = bw / 2.0;
 
-	if (frequency >= 0 && frequency < fft_length * bw_half) {
+	if (frequency >= 0 && frequency < (double)fft_length * bw_half) {
 		// Para 0 <= i < N/2: f = i * bw
 		// Para 0 <= f < N * bw/2: i = f / bw
 		return frequency / bw;
 	} else if (frequency >= -bw_half && frequency < 0) {
 		// Para N/2 <= i < N: f = (i - N) * bw
 		// Para -bw/2 <= f < 0: i = N + f / bw
-		return fft_length + frequency / bw;
+		return (double)fft_length + frequency / bw;
 	}
 
 	return 0;
 }
 
-// A partir de la FFT, calcula la suma promedio entre dos frecuencias [f_min; f_max)
-// Si la frecuencia cae en un valor no entero de una posición de FFT, se suma ponderada,
-// como si calculara el área de una función discreta, segmentada por cada posición.
-double bpf_average(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate)
+double bpf_sum(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate)
 {
 	double p_min = frequency_to_fft_index(f_min, fft_length, fft_sample_rate);
 	double p_max = frequency_to_fft_index(f_max, fft_length, fft_sample_rate);
@@ -113,26 +110,71 @@ double bpf_average(double f_min, double f_max, double *fft_real, unsigned int ff
 
 	double sum = 0;
 
-	if (i_min >= 1) {
-		// Sumo parte fraccionaria del inicio, ponderada:
-		sum += (i_min - p_min) * fft_real[i_min - 1];
+	// Si p_max - p_min < 1 ==> i_min > i_max
+	// Para no sumar 2 veces ese segmento, valido que no se crucen
+	if (i_min < i_max) {
+		if (i_min >= 1) {
+			// Sumo parte fraccionaria del inicio, ponderada:
+			sum += ((double)i_min - p_min) * fft_real[i_min - 1];
+		}
+
+		if (i_max < fft_length) {
+			// Sumo parte fraccionaria del final, ponderada:
+			sum += (p_max - (double)i_max) * fft_real[i_max];
+		}
+
+		// Sumo partes enteras:
+		for (unsigned int i = i_min; i < i_max; i++) {
+			sum += fft_real[i];
+		}
+	} else if (i_max < fft_length) {
+		// p_max - p_min < 1
+		// Sumo un solo elemento, sacando los márgenes:
+		sum += ((double)p_max - p_min) * fft_real[i_max];
 	}
 
-	if (i_max < fft_length) {
-		// Sumo parte fraccionaria del final, ponderada:
-		sum += (p_max - i_max) * fft_real[i_max];
-	}
+	return sum;
+}
 
-	// Sumo partes enteras:
-	for (unsigned int i = i_min; i < i_max; i++) {
-		sum += fft_real[i];
-	}
+// A partir de la FFT, calcula la suma promedio entre dos frecuencias [f_min; f_max)
+// Si la frecuencia cae en un valor no entero de una posición de FFT, se suma ponderada,
+// como si calculara el área de una función discreta, segmentada por cada posición.
+double bpf_average(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate)
+{
+	double sum = bpf_sum(f_min, f_max, fft_real, fft_length, fft_sample_rate);
+
+	if (p_max == p_min) return 0;
 
 	// Promedio:
 	return sum / (p_max - p_min);
 }
 
-// El oído no percibe linealmente las frecuencias (por ejemplo, una octava es
-// el doble de frecuencia).
-// Por esto, una frecuencia de 100 Hz se parece a una de 200 Hz en igual medida
-// que una de 10 KHz se parece a otra de 20 KHz.
+// Calcula las frecuencias en donde empiezan las bandas, de forma tal que la
+// relación musical entre las mismas sea igual de una banda a la siguiente.
+void bands_frequencies(double* frequencies, double f_min, double f_max, int bands)
+{
+	// El oído no percibe linealmente las frecuencias (por ejemplo, una octava es
+	// el doble de frecuencia).
+	// Por esto, una frecuencia de 100 Hz se parece a una de 200 Hz en igual medida
+	// que una de 10 KHz se parece a otra de 20 KHz.
+
+	// Ver:
+	// https://en.wikipedia.org/wiki/Equal_temperament
+	// http://people.cs.uchicago.edu/~odonnell/Scholar/Work_in_progress/Digital_Sound_Modelling/lectnotes/node4.html
+	// https://stackoverflow.com/questions/19472747/convert-linear-scale-to-logarithmic
+
+	// Quiero un array con las frecuencias en donde empiezan las bandas, de
+	// forma tal que el próximo índice sería f_max.
+
+	// (x - x0) / (x1 - x0) = (log(y) - log(y0)) / (log(y1) - log(y0))
+	// ==>
+	// log(y) = log(y0) + (x - x0) * (log(y1) - log(y0)) / (x1 - x0)
+	// ==>
+	// y = 2 ^ ( log(y0) + (x - x0) * (log(y1) - log(y0)) / (x1 - x0) )
+	double log2_y0 = f_min == 0 ? 0 : log2(f_min);
+	double d = (log2(f_max) - log2_y0) / (double)bands;
+
+	for (int x = 0; x < bands; x++) {
+		frequencies[x] = pow(2, log2_y0 + (double)x * d);
+	}
+}

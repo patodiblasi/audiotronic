@@ -2,6 +2,7 @@
 // https://rosettacode.org/wiki/Fast_Fourier_transform#C
 // https://batchloaf.wordpress.com/2017/02/10/a-simple-way-to-read-and-write-audio-and-video-files-in-c-using-ffmpeg/
 // http://trac.ffmpeg.org/wiki/StreamingGuide
+// https://dsp.stackexchange.com/questions/8317/fft-amplitude-or-magnitude
 
 #include <stdio.h>
 #include <stdlib.h>
