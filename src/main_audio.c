@@ -1,8 +1,8 @@
 #include "main_audio.h"
 #include "show_audio.h"
 
-#define MIN_FREQ 20
-#define MAX_FREQ 22050
+#define MIN_FREQ 24
+#define MAX_FREQ 24576
 #define AUDIO_DRIVER "alsa"
 #define AUDIO_INPUT_DEVICE "front:CARD=USB,DEV=0"
 
@@ -40,27 +40,24 @@ int audio_loop_start(t_audio_info* audio_info)
 
 	audio_info->empty_stream_count = 0;
 
-	draw_wave(audio_info->chunk.samples, audio_info->chunk.length, 300, 30);
-	// print_wave_values(audio_info->chunk.samples, audio_info->chunk.length);
+	// draw_wave(audio_info->chunk.samples, audio_info->chunk.length, 300, 30);
+	// print_wave_values(audio_info->real, audio_info->chunk.length);
 
-	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
+	// OJO: el input de la FFT tiene que ser en cantidades potencia de 2
 	size_t fft_size = sizeof(double) * audio_info->chunk.length;
+	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
 	audio_info->real = (double*)malloc(fft_size);
 	audio_info->imag = (double*)malloc(fft_size);
 
 	for (unsigned int i = 0; i < audio_info->chunk.length; i++) {
+		// No importa si los valores son negativos.
+		// Un corrimiento igual para todos los valores no altera el resultado de la FFT.
 		audio_info->real[i] = (double)(audio_info->chunk.samples[i]);
 		audio_info->imag[i] = 0;
 	}
 
 	signal_to_fft(audio_info->real, audio_info->imag, audio_info->chunk.length, (double)audio_info->config.min_sample_rate);
 
-	// Cada posición del array corresponde a una banda de frecuencia.
-	// Todas las posiciones son del mismo ancho: sample_rate / length
-	// Tener en cuenta que el oído no percibe linealmente las frecuencias
-	// (una octava es el doble de frecuencia). Por esto, una frecuencia de
-	// 100 Hz se parece a una de 200 Hz en igual medida que una de 10 KHz
-	// se parece a otra de 20 KHz.
 
 	////////////////////////////////////////////////////////////////////////
 	// printf("\n-------------------------\nFFT:\n");
