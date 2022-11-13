@@ -2,6 +2,7 @@
 
 -  g++
 -  ffmpeg
+-  ncurses
 -  SDL
 -  sdl2_image
 
@@ -14,8 +15,10 @@
 
 ## Pendiente
 
+-  Filtro de banda (BPF)
+-  Lectura de pipe fmpeg no bloqueante y acumulativa
 -  Visualizador de frecuencias consola
--  Filtro por frecuencias: (frecuencia, q) => amplitud promedio
+-  Filtro por frecuencia: (frecuencia, q) => BPF
 -  Modificación en vivo de filtro de frecuencias
 -  Visualizador de frecuencias SDL
 -  Escuchar audio original
