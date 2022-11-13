@@ -21,20 +21,24 @@ audio_config new_audio_config(int min_freq, int max_freq)
 	return config;
 }
 
-void signal_to_fft(double *real, double *imag, uint16_t samples, double sampling_frequency)
+void signal_to_fft(double *fft_real, double *fft_imag, unsigned int fft_length, double fft_sample_rate)
 {
 	#if USE_ARDUINO_FFT_MODULE
 		// Con arduinoFFT.cpp:
-		arduinoFFT fftInstance = arduinoFFT(real, imag, samples, sampling_frequency);
+		arduinoFFT fftInstance = arduinoFFT(fft_real, fft_imag, fft_length, fft_sample_rate);
 
 		// Compute FFT
-		fftInstance.DCRemoval();
+		// DCRemoval genera más ruido del que elimina... Overflow?
+		ftInstance.DCRemoval();
 		fftInstance.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
 		fftInstance.Compute(FFT_FORWARD);
 		fftInstance.ComplexToMagnitude();
 	#else
 		// Con fft.c:
-		fft(real, imag, samples);
+		fft(fft_real, fft_imag, fft_length);
+
+		// Hago absolutos todos los valores:
+		fft_amplitude_to_magnitude(fft_real, fft_length);
 	#endif
 }
 
@@ -160,7 +164,7 @@ double bpf_average(double f_min, double f_max, double *fft_real, unsigned int ff
 
 // Calcula las frecuencias en donde empiezan las bandas, de forma tal que la
 // relación musical entre las mismas sea igual de una banda a la siguiente.
-void bands_frequencies(double* frequencies, double f_min, double f_max, int bands)
+void bands_frequencies(double* frequencies, double f_min, double f_max, unsigned int bands)
 {
 	// El oído no percibe linealmente las frecuencias (por ejemplo, una octava es
 	// el doble de frecuencia).

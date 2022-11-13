@@ -22,12 +22,12 @@ typedef struct {
 } audio_config;
 
 audio_config new_audio_config(int min_freq, int max_freq);
-void signal_to_fft(double *real, double *imag, uint16_t samples, double sampling_frequency);
+void signal_to_fft(double *fft_real, double *fft_imag, unsigned int fft_length, double fft_sample_rate);
 double bpf_sum(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate);
 double bpf_average(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate);
 double fft_bin_bandwidth(unsigned int fft_length, double fft_sample_rate);
 double fft_index_to_frequency(unsigned int fft_index, unsigned int fft_length, double fft_sample_rate);
 double frequency_to_fft_index(double frequency, unsigned int fft_length, double fft_sample_rate);
-void bands_frequencies(double* frequencies, double f_min, double f_max, int bands);
+void bands_frequencies(double* frequencies, double f_min, double f_max, unsigned int bands);
 
 #endif

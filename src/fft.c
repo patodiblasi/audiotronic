@@ -1,15 +1,13 @@
 
 #include "fft.h"
 
-void
-fft(double data_re[], double data_im[], const unsigned int N)
+void fft(double data_re[], double data_im[], const unsigned int N)
 {
 	rearrange(data_re, data_im, N);
 	compute(data_re, data_im, N);
 }
 
-void
-rearrange(double data_re[], double data_im[], const unsigned int N)
+void rearrange(double data_re[], double data_im[], const unsigned int N)
 {
 	unsigned int target = 0;
 	for(unsigned int position=0; position<N;position++)
@@ -29,8 +27,7 @@ rearrange(double data_re[], double data_im[], const unsigned int N)
 	}
 }
 
-void
-compute(double data_re[], double data_im[], const unsigned int N)
+void compute(double data_re[], double data_im[], const unsigned int N)
 {
 	const double pi = -3.14159265358979323846;
 
@@ -68,3 +65,14 @@ compute(double data_re[], double data_im[], const unsigned int N)
 		}
 	}
 }
+
+// Convierte todos los valores a positivos
+void fft_amplitude_to_magnitude(double *fft_real, unsigned int fft_length)
+{
+	for (int i=0; i < fft_length; i++) {
+		if (fft_real[i] < 0) {
+			fft_real[i] *= -1;
+		}
+	}
+}
+
