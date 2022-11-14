@@ -19,7 +19,7 @@ int audio_setup(t_audio_info* audio_info)
 		audio_info->config.min_samples_duration_ms
 	);
 
-	// audio_info->fp = open_audio_file("audios/sweep.mp3");
+	// audio_info->fp = open_audio_file("audios/sweep_log.wav");
 	audio_info->fp = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
 	if (!audio_info->fp) {
 		fprintf(stderr, "\nError abriendo audio.\n");
@@ -56,7 +56,7 @@ int audio_loop(t_audio_info* audio_info)
 	audio_info->fft.length = audio_info->chunk.length;
 
 	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
-	for (unsigned int i = 0; i < audio_info->chunk.length; i++) {
+	for (int i = 0; i < audio_info->chunk.length; i++) {
 		// No importa si los valores son negativos.
 		// Un corrimiento igual para todos los valores no altera el resultado de la FFT.
 		audio_info->fft.real[i] = (double)(audio_info->chunk.samples[i]);

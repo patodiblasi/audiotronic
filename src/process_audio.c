@@ -25,7 +25,7 @@ void signal_to_fft(t_fft* fft)
 {
 	#if USE_ARDUINO_FFT_MODULE
 		// Con arduinoFFT.cpp:
-		arduinoFFT fftInstance = arduinoFFT(fft->real, fft->imaginary, fft->length, fft->sample_rate);
+		arduinoFFT fftInstance = arduinoFFT(fft->real, fft->imaginary, (uint16_t)fft->length, fft->sample_rate);
 
 		// Compute FFT
 		// DCRemoval genera más ruido del que elimina... Overflow?
@@ -35,14 +35,14 @@ void signal_to_fft(t_fft* fft)
 		fftInstance.ComplexToMagnitude();
 	#else
 		// Con fft.c:
-		fft(fft->real, fft->imaginary, fft->length);
+		fft_compute(fft->real, fft->imaginary, (unsigned int)fft->length);
 
 		// Hago absolutos todos los valores:
 		fft_amplitude_to_magnitude(fft->real, fft->length);
 	#endif
 }
 
-double fft_bin_bandwidth(unsigned int fft_length, double fft_sample_rate)
+double fft_bin_bandwidth(int fft_length, double fft_sample_rate)
 {
 	// Cada posición del array de FFT ("bin") corresponde a una banda de frecuencia.
 	// Todas las posiciones son del mismo ancho (bandwidth).
@@ -62,7 +62,7 @@ double fft_bin_bandwidth(unsigned int fft_length, double fft_sample_rate)
 // Para 0 <= i < N/2: f = i * bw
 // Para N/2 <= i < N: f = (i - N) * bw
 
-double fft_index_to_frequency(unsigned int fft_index, unsigned int fft_length, double fft_sample_rate)
+double fft_index_to_frequency(int fft_index, int fft_length, double fft_sample_rate)
 {
 	if (fft_index <= 0 || fft_length == 0 || fft_sample_rate <= 0 || fft_index >= fft_length) return 0;
 
@@ -79,7 +79,7 @@ double fft_index_to_frequency(unsigned int fft_index, unsigned int fft_length, d
 
 // La frecuencia puede ser negativa (corresponde a la 2da parte del array de FFT).
 // El index puede ser un valor no entero.
-double frequency_to_fft_index(double frequency, unsigned int fft_length, double fft_sample_rate)
+double frequency_to_fft_index(double frequency, int fft_length, double fft_sample_rate)
 {
 	if (fft_length == 0 || fft_sample_rate <= 0) return 0;
 
@@ -103,8 +103,8 @@ double bpf_sum(double f_min, double f_max, t_fft* fft)
 {
 	double p_min = frequency_to_fft_index(f_min, fft->length, fft->sample_rate);
 	double p_max = frequency_to_fft_index(f_max, fft->length, fft->sample_rate);
-	unsigned int i_min = ceil(p_min);
-	unsigned int i_max = floor(p_max);
+	int i_min = ceil(p_min);
+	int i_max = floor(p_max);
 
 	// Para prevenir imprecisiones por redondeo:
 	if (p_min > i_min) p_min = i_min;
@@ -128,7 +128,7 @@ double bpf_sum(double f_min, double f_max, t_fft* fft)
 		}
 
 		// Sumo partes enteras:
-		for (unsigned int i = i_min; i < i_max; i++) {
+		for (int i = i_min; i < i_max; i++) {
 			sum += fft->real[i];
 		}
 	} else if (i_max < fft->length) {
@@ -147,8 +147,8 @@ double bpf_average(double f_min, double f_max, t_fft* fft)
 {
 	double p_min = frequency_to_fft_index(f_min, fft->length, fft->sample_rate);
 	double p_max = frequency_to_fft_index(f_max, fft->length, fft->sample_rate);
-	unsigned int i_min = ceil(p_min);
-	unsigned int i_max = floor(p_max);
+	int i_min = ceil(p_min);
+	int i_max = floor(p_max);
 
 	// Para prevenir imprecisiones por redondeo:
 	if (p_min > i_min) p_min = i_min;

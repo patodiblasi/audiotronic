@@ -122,7 +122,7 @@ int load_screen(sdl_screen screen)
 }
 
 // Retorna bool indicando si continuar
-bool screen_frame(sdl_screen screen, int16_t* signal, unsigned int signal_length, double* fft, unsigned int fft_length)
+bool screen_frame(sdl_screen screen, int16_t* signal, int signal_length, double* fft, int fft_length)
 {
 	//Event handler
 	SDL_Event e;
@@ -136,7 +136,7 @@ bool screen_frame(sdl_screen screen, int16_t* signal, unsigned int signal_length
 	}
 
 	double avg = 0;
-	for (unsigned int i = 0; i < signal_length; i++) {
+	for (int i = 0; i < signal_length; i++) {
 		avg += (double)signal[i];
 	}
 

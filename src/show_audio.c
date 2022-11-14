@@ -8,9 +8,9 @@ WINDOW* body_window;
 // samples_per_line: Indica qué tanto se comprime verticalmente el dibujo.
 // La cantidad de samples indicados por samples_per_line se promedian para formar una sola línea.
 // multiplier: Multiplicador para la amplitud. Si el resultado excede el máximo, se cropea.
-void draw_wave(int16_t* samples, unsigned int length, unsigned int samples_per_line, double multiplier)
+void draw_wave(int16_t* samples, int length, int samples_per_line, double multiplier)
 {
-	unsigned int max_amplitude = 65535;
+	int max_amplitude = 65535;
 
 	int i = 0;
 	int j = 0;
@@ -58,7 +58,7 @@ void draw_wave(int16_t* samples, unsigned int length, unsigned int samples_per_l
 	}
 }
 
-void print_wave_values(int16_t* samples, unsigned int length)
+void print_wave_values(int16_t* samples, int length)
 {
 	for (int i = 0; i < length; i++) {
 		printf("\n%d\t%d", i, (short int)samples[i]);
@@ -118,7 +118,7 @@ int ncurses_loop(t_fft* fft)
 	// }
 
 	// TODO: sacar del loop
-	unsigned int bands_length = 28;
+	int bands_length = 28;
 	t_frequency_band bands_values[bands_length];
 	t_frequency_band_array band_array;
 	band_array.values = bands_values;

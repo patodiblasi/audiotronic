@@ -20,7 +20,7 @@ t_audio_info audio_info;
 ////////////////////////////////////////////////////////////////////////////////
 
 // Retorna tiempo en microsegundos desde algún punto desconocido
-long unsigned int get_utime()
+long int get_utime()
 {
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &now);
@@ -78,17 +78,17 @@ int main(void)
 
 	// Limitadores de ciclos
 	// Todo en microsegundos
-	unsigned long now;
-	unsigned long last_audio_time = 0;
-	unsigned long last_video_time = 0;
-	unsigned long audio_frame_duration = 1000 * audio_info.config.min_samples_duration_ms; // Aprox 1/20 = 50 ms
-	unsigned long video_frame_duration = (1000000 / 30); // 1/60 = 16,66 ms
+	long now;
+	long last_audio_time = 0;
+	long last_video_time = 0;
+	long audio_frame_duration = 1000 * audio_info.config.min_samples_duration_ms; // Aprox 1/20 = 50 ms
+	long video_frame_duration = (1000000 / 30); // 1/60 = 16,66 ms
 
 	int run_audio_frame = 1;
 	int run_video_frame = 1;
 	int continue_loop = 1;
 
-	unsigned long frame_number = 0;
+	long frame_number = 0;
 
 	while (continue_loop) {
 		////////////////////////////////////////////////////////////////////////
