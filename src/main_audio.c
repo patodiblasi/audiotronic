@@ -26,11 +26,17 @@ int audio_setup(t_audio_info* audio_info)
 		return 0;
 	}
 
-	screen_start();
+	// OJO: el input de la FFT tiene que ser en cantidades potencia de 2
+	size_t fft_size = sizeof(double) * audio_info->config.min_samples;
+	audio_info->fft.real = (double*)malloc(fft_size);
+	audio_info->fft.imaginary = (double*)malloc(fft_size);
+	audio_info->fft.length = 0;
+	audio_info->fft.sample_rate = (double)audio_info->config.min_sample_rate;
+
 	return 1;
 }
 
-int audio_loop_start(t_audio_info* audio_info)
+int audio_loop(t_audio_info* audio_info)
 {
 	audio_info->chunk = read_audio(audio_info->fp, audio_info->config.min_samples);
 	if (audio_info->chunk.length == 0) {
@@ -46,54 +52,30 @@ int audio_loop_start(t_audio_info* audio_info)
 
 	audio_info->empty_stream_count = 0;
 
-	// OJO: el input de la FFT tiene que ser en cantidades potencia de 2
-	size_t fft_size = sizeof(double) * audio_info->chunk.length;
-	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
-	audio_info->real = (double*)malloc(fft_size);
-	audio_info->imag = (double*)malloc(fft_size);
+	// TODO: tendría que asegurar que sea potencia de 2 antes de hacer cálculos
+	audio_info->fft.length = audio_info->chunk.length;
 
+	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
 	for (unsigned int i = 0; i < audio_info->chunk.length; i++) {
 		// No importa si los valores son negativos.
 		// Un corrimiento igual para todos los valores no altera el resultado de la FFT.
-		audio_info->real[i] = (double)(audio_info->chunk.samples[i]);
-		audio_info->imag[i] = 0;
+		audio_info->fft.real[i] = (double)(audio_info->chunk.samples[i]);
+		audio_info->fft.imaginary[i] = 0;
 	}
 
-	signal_to_fft(audio_info->real, audio_info->imag, audio_info->chunk.length, (double)audio_info->config.min_sample_rate);
-
-	// TODO: refactor de audio_info
-	t_fft fft;
-	fft.real = audio_info->real;
-	fft.imaginary = audio_info->imag;
-	fft.length = audio_info->chunk.length;
-	fft.sample_rate = (double)audio_info->config.min_sample_rate;
-
-	// TODO: sacar del loop
-	unsigned int bands_length = 30;
-	t_frequency_band bands_values[bands_length];
-	t_frequency_band_array band_array;
-	band_array.values = bands_values;
-	band_array.length = bands_length;
-
-	screen_draw_fft(&fft, &band_array);
-
-	return 1;
-}
-
-int audio_loop_end(t_audio_info* audio_info)
-{
-	free(audio_info->chunk.samples);
-	audio_info->chunk.samples = NULL;
-	free(audio_info->real);
-	audio_info->real = NULL;
-	free(audio_info->imag);
-	audio_info->imag = NULL;
+	signal_to_fft(&audio_info->fft);
 
 	return 1;
 }
 
 void audio_end(t_audio_info* audio_info)
 {
-	screen_end();
+	free(audio_info->chunk.samples);
+	audio_info->chunk.samples = NULL;
+	free(audio_info->fft.real);
+	audio_info->fft.real = NULL;
+	free(audio_info->fft.imaginary);
+	audio_info->fft.imaginary = NULL;
+
 	close_audio(audio_info->fp);
 }

@@ -54,11 +54,11 @@ void close_audio(FILE* fp)
 	fp = NULL;
 }
 
-samples_chunk read_audio(FILE* fp, unsigned int samples_count)
+t_wave read_audio(FILE* fp, unsigned int samples_count)
 {
 	// Ver: fileno(fp) para obtener el file descriptor, y fcntl para hacer no bloqueante la lectura
 	// https://www.geeksforgeeks.org/non-blocking-io-with-pipes-in-c/
-	samples_chunk chunk;
+	t_wave chunk;
 	chunk.samples = (int16_t*)malloc(sizeof(int16_t) * samples_count);
 	chunk.length = (unsigned int)fread(chunk.samples, 2, samples_count, fp);
 

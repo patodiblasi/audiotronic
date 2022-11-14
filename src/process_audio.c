@@ -21,11 +21,11 @@ audio_config new_audio_config(int min_freq, int max_freq)
 	return config;
 }
 
-void signal_to_fft(double *fft_real, double *fft_imag, unsigned int fft_length, double fft_sample_rate)
+void signal_to_fft(t_fft* fft)
 {
 	#if USE_ARDUINO_FFT_MODULE
 		// Con arduinoFFT.cpp:
-		arduinoFFT fftInstance = arduinoFFT(fft_real, fft_imag, fft_length, fft_sample_rate);
+		arduinoFFT fftInstance = arduinoFFT(fft->real, fft->imaginary, fft->length, fft->sample_rate);
 
 		// Compute FFT
 		// DCRemoval genera más ruido del que elimina... Overflow?
@@ -35,10 +35,10 @@ void signal_to_fft(double *fft_real, double *fft_imag, unsigned int fft_length, 
 		fftInstance.ComplexToMagnitude();
 	#else
 		// Con fft.c:
-		fft(fft_real, fft_imag, fft_length);
+		fft(fft->real, fft->imaginary, fft->length);
 
 		// Hago absolutos todos los valores:
-		fft_amplitude_to_magnitude(fft_real, fft_length);
+		fft_amplitude_to_magnitude(fft->real, fft->length);
 	#endif
 }
 
@@ -99,10 +99,10 @@ double frequency_to_fft_index(double frequency, unsigned int fft_length, double 
 	return 0;
 }
 
-double bpf_sum(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate)
+double bpf_sum(double f_min, double f_max, t_fft* fft)
 {
-	double p_min = frequency_to_fft_index(f_min, fft_length, fft_sample_rate);
-	double p_max = frequency_to_fft_index(f_max, fft_length, fft_sample_rate);
+	double p_min = frequency_to_fft_index(f_min, fft->length, fft->sample_rate);
+	double p_max = frequency_to_fft_index(f_max, fft->length, fft->sample_rate);
 	unsigned int i_min = ceil(p_min);
 	unsigned int i_max = floor(p_max);
 
@@ -119,22 +119,22 @@ double bpf_sum(double f_min, double f_max, double *fft_real, unsigned int fft_le
 	if (i_min < i_max) {
 		if (i_min >= 1) {
 			// Sumo parte fraccionaria del inicio, ponderada:
-			sum += ((double)i_min - p_min) * fft_real[i_min - 1];
+			sum += ((double)i_min - p_min) * fft->real[i_min - 1];
 		}
 
-		if (i_max < fft_length) {
+		if (i_max < fft->length) {
 			// Sumo parte fraccionaria del final, ponderada:
-			sum += (p_max - (double)i_max) * fft_real[i_max];
+			sum += (p_max - (double)i_max) * fft->real[i_max];
 		}
 
 		// Sumo partes enteras:
 		for (unsigned int i = i_min; i < i_max; i++) {
-			sum += fft_real[i];
+			sum += fft->real[i];
 		}
-	} else if (i_max < fft_length) {
+	} else if (i_max < fft->length) {
 		// p_max - p_min < 1
 		// Sumo un solo elemento, sacando los márgenes:
-		sum += ((double)p_max - p_min) * fft_real[i_max];
+		sum += ((double)p_max - p_min) * fft->real[i_max];
 	}
 
 	return sum;
@@ -143,10 +143,10 @@ double bpf_sum(double f_min, double f_max, double *fft_real, unsigned int fft_le
 // A partir de la FFT, calcula la suma promedio entre dos frecuencias [f_min; f_max)
 // Si la frecuencia cae en un valor no entero de una posición de FFT, se suma ponderada,
 // como si calculara el área de una función discreta, segmentada por cada posición.
-double bpf_average(double f_min, double f_max, double *fft_real, unsigned int fft_length, double fft_sample_rate)
+double bpf_average(double f_min, double f_max, t_fft* fft)
 {
-	double p_min = frequency_to_fft_index(f_min, fft_length, fft_sample_rate);
-	double p_max = frequency_to_fft_index(f_max, fft_length, fft_sample_rate);
+	double p_min = frequency_to_fft_index(f_min, fft->length, fft->sample_rate);
+	double p_max = frequency_to_fft_index(f_max, fft->length, fft->sample_rate);
 	unsigned int i_min = ceil(p_min);
 	unsigned int i_max = floor(p_max);
 
@@ -156,7 +156,7 @@ double bpf_average(double f_min, double f_max, double *fft_real, unsigned int ff
 
 	if (p_max == p_min) return 0;
 
-	double sum = bpf_sum(f_min, f_max, fft_real, fft_length, fft_sample_rate);
+	double sum = bpf_sum(f_min, f_max, fft);
 
 	// Promedio:
 	return sum / (p_max - p_min);
@@ -213,9 +213,13 @@ void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
 
 	init_bands(fb_array, 20, 20000);
 
-	for (int i = 1; i <= fb_array->length; i++) {
+	for (int i = 0; i < fb_array->length; i++) {
 		int is_cropped = 0;
-		fb_array->values[i].value = bpf_average(fb_array->values[i].min, fb_array->values[i].max, fft->real, fft->length, fft->sample_rate) / max_amplitude;
+		fb_array->values[i].value = bpf_average(
+			fb_array->values[i].min,
+			fb_array->values[i].max,
+			fft
+		) / max_amplitude;
 	}
 }
 
