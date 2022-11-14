@@ -19,8 +19,8 @@ int audio_setup(t_audio_info* audio_info)
 		audio_info->config.min_samples_duration_ms
 	);
 
-	// audio_info->fp = open_audio_file("audios/sweep_log.wav");
-	audio_info->fp = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
+	audio_info->fp = open_audio_file("audios/sweep_log.wav");
+	// audio_info->fp = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
 	if (!audio_info->fp) {
 		fprintf(stderr, "\nError abriendo audio.\n");
 		return 0;
@@ -61,7 +61,21 @@ int audio_loop_start(t_audio_info* audio_info)
 
 	signal_to_fft(audio_info->real, audio_info->imag, audio_info->chunk.length, (double)audio_info->config.min_sample_rate);
 
-	screen_draw_fft(audio_info->real, audio_info->chunk.length, (double)audio_info->config.min_sample_rate, 30);
+	// TODO: refactor de audio_info
+	t_fft fft;
+	fft.real = audio_info->real;
+	fft.imaginary = audio_info->imag;
+	fft.length = audio_info->chunk.length;
+	fft.sample_rate = (double)audio_info->config.min_sample_rate;
+
+	// TODO: sacar del loop
+	unsigned int bands_length = 30;
+	t_frequency_band bands_values[bands_length];
+	t_frequency_band_array band_array;
+	band_array.values = bands_values;
+	band_array.length = bands_length;
+
+	screen_draw_fft(&fft, &band_array);
 
 	return 1;
 }

@@ -29,7 +29,7 @@ void signal_to_fft(double *fft_real, double *fft_imag, unsigned int fft_length, 
 
 		// Compute FFT
 		// DCRemoval genera más ruido del que elimina... Overflow?
-		ftInstance.DCRemoval();
+		// fftInstance.DCRemoval();
 		fftInstance.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
 		fftInstance.Compute(FFT_FORWARD);
 		fftInstance.ComplexToMagnitude();
@@ -164,7 +164,7 @@ double bpf_average(double f_min, double f_max, double *fft_real, unsigned int ff
 
 // Calcula las frecuencias en donde empiezan las bandas, de forma tal que la
 // relación musical entre las mismas sea igual de una banda a la siguiente.
-void bands_frequencies(double* frequencies, double f_min, double f_max, unsigned int bands)
+void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
 {
 	// El oído no percibe linealmente las frecuencias (por ejemplo, una octava es
 	// el doble de frecuencia).
@@ -180,14 +180,42 @@ void bands_frequencies(double* frequencies, double f_min, double f_max, unsigned
 	// forma tal que el próximo índice sería f_max.
 
 	// (x - x0) / (x1 - x0) = (log(y) - log(y0)) / (log(y1) - log(y0))
-	// ==>
 	// log(y) = log(y0) + (x - x0) * (log(y1) - log(y0)) / (x1 - x0)
-	// ==>
 	// y = 2 ^ ( log(y0) + (x - x0) * (log(y1) - log(y0)) / (x1 - x0) )
-	double log2_y0 = f_min == 0 ? 0 : log2(f_min);
-	double d = (log2(f_max) - log2_y0) / (double)bands;
 
-	for (int x = 0; x < bands; x++) {
-		frequencies[x] = pow(2, log2_y0 + (double)x * d);
+	// x0: 0, x1: fb_array->length, y0: f_min, y1: f_min
+	double log2_y0 = f_min == 0 ? 0 : log2(f_min);
+	double d = (log2(f_max) - log2_y0) / (double)(fb_array->length);
+
+	fb_array->values[0].min = f_min;
+	for (int x = 1; x < fb_array->length; x++) {
+		double f = pow(2, log2_y0 + (double)x * d);
+		fb_array->values[x-1].max = f;
+		fb_array->values[x].min = f;
+
+		// El centro de la banda, en escala logarítmica, es el mismo cálculo,
+		// pero como si tuviera 2 bandas, con x0 = 0, x1 = 2, evaluado en x = 1.
+
+		// y = 2 ^ ( log(y0) + (x - x0) * (log(y1) - log(y0)) / (x1 - x0) )
+		// Después de simplificar, queda:
+		// y = raíz (y0 * y1)
+		fb_array->values[x-1].center = sqrt(fb_array->values[x-1].max * fb_array->values[x-1].min);
+	}
+	fb_array->values[fb_array->length-1].max = f_max;
+}
+
+// Los valores de las bandas son normalizados de 0 a 1, pero pueden existir
+// valores fuera de escala (no se verifica límite).
+void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
+{
+	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
+	double max_amplitude = pow(2, 20) - 1;
+
+	init_bands(fb_array, 20, 20000);
+
+	for (int i = 1; i <= fb_array->length; i++) {
+		int is_cropped = 0;
+		fb_array->values[i].value = bpf_average(fb_array->values[i].min, fb_array->values[i].max, fft->real, fft->length, fft->sample_rate) / max_amplitude;
 	}
 }
+

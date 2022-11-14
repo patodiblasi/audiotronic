@@ -36,7 +36,6 @@ void draw_wave(int16_t* samples, unsigned int length, unsigned int samples_per_l
 			amplitude_columns = -col_limit;
 		}
 
-
 		printf("\n");
 		if (amplitude_columns < 0) {
 			for (j = -col_limit; j < amplitude_columns; j++) {
@@ -84,6 +83,8 @@ void screen_start()
 	init_pair(COLOR_PAIR_ACCENT, COLOR_BLACK, COLOR_WHITE);
 	init_pair(COLOR_PAIR_PRIMARY, COLOR_WHITE, COLOR_BLUE);
 	init_pair(COLOR_PAIR_ERROR, COLOR_WHITE, COLOR_RED);
+
+	draw_logo();
 }
 
 void screen_end()
@@ -91,50 +92,66 @@ void screen_end()
 	endwin();
 }
 
-// bands: Cantidad de bandas en que se divide el resultado
-void screen_draw_fft(double *fft_real, unsigned int fft_length, unsigned int fft_sample_rate, unsigned int bands)
+void draw_logo()
 {
+	attron(COLOR_PAIR(COLOR_PAIR_PRIMARY));
+
+	mvprintw(1, 5, "           _     __  ___  _   __          __ ");
+	mvprintw(2, 5, " /\\  |  | | \\ | |  |  |  |_/ |  | |\\ | | |   ");
+	mvprintw(3, 5, "/  \\ |__| |_/ | |__|  |  | \\ |__| | \\| | |__ ");
+}
+
+// bands: Cantidad de bandas en que se divide el resultado
+void screen_draw_fft(t_fft* fft, t_frequency_band_array* band_array)
+{
+	int bar_bottom = 45;
+	int bar_height = 30;
+	int band_containter_width = 6;
+	int margin_left = 5;
+
 	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 20) - 1;
-	double frequencies[bands];
-	bands_frequencies(frequencies, 20, 20000, bands);
+	double max_amplitude = pow(2, 24) - 1;
+
+	fft_to_bands(fft, band_array);
 
 	// getmaxyx(stdscr, row, col);
 	clear();
-	for (int i = 1; i <= bands; i++) {
+	for (int i = 1; i <= band_array->length; i++) {
 		int is_cropped = 0;
 		int i0 = i-1;
-		double avg = bpf_average(frequencies[i0], frequencies[i], fft_real, fft_length, fft_sample_rate);
-		if (avg > max_amplitude) {
+		double value_cropped;
+		t_frequency_band* band = &(band_array->values[i]);
+		if (band->value > 1) {
 			is_cropped = 1;
-			avg = 1;
-		} else if (avg < 0) {
+			value_cropped = 1;
+		} else if (band->value < 0) {
 			is_cropped = 1;
-			avg = 0;
+			value_cropped = 0;
 		} else {
-			avg /= max_amplitude;
+			value_cropped = band->value;
 		}
-		// printf("%d: %.2f: %.2f\n", i-1, frequencies[i-1], avg);
-		// char s[100];
 
-		int bottom = 40;
-		int y = bottom - 20 * avg;
-		int x = 5 + i0 * 6;
+		int y = bar_bottom - bar_height * value_cropped;
+		int x = margin_left + i0 * band_containter_width;
 
 		attron(COLOR_PAIR(COLOR_PAIR_PRIMARY));
-		for (int j = bottom; j > y; j--) {
+		for (int j = bar_bottom; j > y; j--) {
 			mvprintw(j, x, "   ");
 		}
-
+		draw_logo();
 		if (is_cropped) {
 			attron(COLOR_PAIR(COLOR_PAIR_ERROR));
 			mvprintw(y, x, "   ");
-			mvprintw(42, x, "%ld", lround(frequencies[i0]));
+			mvprintw(bar_bottom+2, x, "%ld", lround(band->min));
+			mvprintw(bar_bottom+3, x, "Hz");
+
+			mvprintw(bar_bottom - bar_height - 2, x, "%.2f", band->value);
 		} else {
 			attron(COLOR_PAIR(COLOR_PAIR_ACCENT));
 			mvprintw(y, x, "   ");
 			attron(COLOR_PAIR(COLOR_PAIR_TEXT));
-			mvprintw(42, x, "%ld", lround(frequencies[i0]));
+			mvprintw(bar_bottom+2, x, "%ld", lround(band->min));
+			mvprintw(bar_bottom+3, x, "Hz");
 		}
 	}
 	refresh();
