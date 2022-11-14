@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <ncurses.h>
 #include "process_audio.h"
-#include "main_audio.h" // TODO: No debería ir acá, pero es necesario refactor!
 
 #define COLOR_PAIR_TEXT 1
 #define COLOR_PAIR_ACCENT 2
@@ -18,7 +17,7 @@ void print_wave_values(int16_t* samples, unsigned int length);
 
 int ncurses_start();
 void ncurses_end();
-int ncurses_loop(t_audio_info* audio_info);
+int ncurses_loop(t_fft* fft);
 
 void delete_win(WINDOW* win);
 

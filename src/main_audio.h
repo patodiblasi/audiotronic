@@ -4,7 +4,6 @@
 #include "read_audio.h"
 #include "process_audio.h"
 
-// TODO: refactor de audio_info para usar t_fft
 typedef struct {
 	t_wave chunk;
 	t_fft fft;

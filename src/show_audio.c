@@ -108,7 +108,7 @@ void ncurses_end()
 	endwin();
 }
 
-int ncurses_loop(t_audio_info* audio_info)
+int ncurses_loop(t_fft* fft)
 {
 	// Esto es bloqueante, así que no me sirve!
 	// char c = wgetch(header_window);
@@ -126,7 +126,7 @@ int ncurses_loop(t_audio_info* audio_info)
 
 	wclear(body_window);
 	box(body_window, 0 , 0);
-	draw_fft(body_window, &audio_info->fft, &band_array);
+	draw_fft(body_window, fft, &band_array);
 	wrefresh(body_window);
 
 	return 1;

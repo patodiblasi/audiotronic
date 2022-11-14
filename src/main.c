@@ -113,7 +113,7 @@ int main(void)
 		}
 
 		if (run_video_frame) {
-			continue_loop = continue_loop && ncurses_loop(&audio_info);
+			continue_loop = continue_loop && ncurses_loop(&audio_info.fft);
 			// continue_loop = continue_loop && screen_frame(screen, audio_info.chunk.samples, audio_info.chunk.length, audio_info.real, audio_info.chunk.length);
 		}
 	}
