@@ -209,12 +209,11 @@ void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
 void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
 {
 	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 20) - 1;
+	double max_amplitude = pow(2, 21) - 1;
 
 	init_bands(fb_array, 20, 20000);
 
 	for (int i = 0; i < fb_array->length; i++) {
-		int is_cropped = 0;
 		fb_array->values[i].value = bpf_average(
 			fb_array->values[i].min,
 			fb_array->values[i].max,

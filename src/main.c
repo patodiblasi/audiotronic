@@ -82,7 +82,7 @@ int main(void)
 	unsigned long last_audio_time = 0;
 	unsigned long last_video_time = 0;
 	unsigned long audio_frame_duration = 1000 * audio_info.config.min_samples_duration_ms; // Aprox 1/20 = 50 ms
-	unsigned long video_frame_duration = (1000000 / 60); // 1/60 = 16,66 ms
+	unsigned long video_frame_duration = (1000000 / 30); // 1/60 = 16,66 ms
 
 	int run_audio_frame = 1;
 	int run_video_frame = 1;

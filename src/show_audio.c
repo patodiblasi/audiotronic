@@ -175,9 +175,6 @@ void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array)
 	int band_containter_width = 6;
 	int margin_left = 5;
 
-	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 24) - 1;
-
 	fft_to_bands(fft, band_array);
 
 	for (int i = 1; i <= band_array->length; i++) {
@@ -216,6 +213,8 @@ void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array)
 			wattron(win, COLOR_PAIR(COLOR_PAIR_TEXT));
 			mvwprintw(win, bar_bottom+2, x, "%ld", lround(band->min));
 			mvwprintw(win, bar_bottom+3, x, "Hz");
+
+			mvwprintw(win, bar_bottom - bar_height - 2, x, "%.2f", band->value);
 		}
 	}
 }
