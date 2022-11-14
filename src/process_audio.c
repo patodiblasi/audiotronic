@@ -182,14 +182,16 @@ void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
 	// (x - x0) / (x1 - x0) = (log(y) - log(y0)) / (log(y1) - log(y0))
 	// log(y) = log(y0) + (x - x0) * (log(y1) - log(y0)) / (x1 - x0)
 	// y = 2 ^ ( log(y0) + (x - x0) * (log(y1) - log(y0)) / (x1 - x0) )
+	// ...
+	// Simplificación Chapu:
+	// y = y0 * (y1 / y0) ^ ((x - x0) / (x1 - x0))
 
-	// x0: 0, x1: fb_array->length, y0: f_min, y1: f_min
-	double log2_y0 = f_min == 0 ? 0 : log2(f_min);
-	double d = (log2(f_max) - log2_y0) / (double)(fb_array->length);
+	// x0: 0, x1: fb_array->length, y0: f_min, y1: f_max
+	double f_proportion = f_max / f_min;
 
 	fb_array->values[0].min = f_min;
 	for (int x = 1; x < fb_array->length; x++) {
-		double f = pow(2, log2_y0 + (double)x * d);
+		double f = f_min * pow(f_proportion, x / (double)fb_array->length);
 		fb_array->values[x-1].max = f;
 		fb_array->values[x].min = f;
 
@@ -209,7 +211,7 @@ void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
 void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
 {
 	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 21) - 1;
+	double max_amplitude = pow(2, 18) - 1;
 
 	init_bands(fb_array, 20, 20000);
 
