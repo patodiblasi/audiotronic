@@ -3,7 +3,7 @@ CC=g++
 # Debug:
 CFLAGS=-c -Wall -g
 
-LIBS=-lm -lncurses
+LIBS=-lm -lncurses -lcurl
 SOURCE:=$(wildcard src/*.c)
 # SOURCE:=$(filter-out src/fft.c, $(SOURCE))
 OBJ=$(SOURCE:.c=.o)
