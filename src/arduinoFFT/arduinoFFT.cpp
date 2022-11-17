@@ -495,6 +495,10 @@ void arduinoFFT::Parabola(double x1, double y1, double x2, double y2, double x3,
 uint8_t arduinoFFT::Exponent(uint16_t value)
 {
 	#warning("This method may not be accessible on future revisions.")
+	if (value == 0) {
+		// The solution is undefined, but we return 0 to avoid an infinite loop
+		return 0;
+	}
 	// Calculates the base 2 logarithm of a value
 	uint8_t result = 0;
 	while (((value >> result) & 1) != 1) result++;
