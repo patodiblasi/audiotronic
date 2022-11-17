@@ -11,7 +11,7 @@
 -  Limpiar: `make clean`
 -  Compilar: `make all`
 -  Ejecutar: `make run`
--  Limpiar + compilar + ejecutar: `make`
+-  Compilar + ejecutar: `make`
 
 ## Pendiente
 

@@ -12,7 +12,7 @@
 #include <time.h>
 #include <signal.h>
 #include "main_audio.h"
-// #include "sdl_screen.h"
+// #include "sdl_screen.c"
 #include "show_audio.h"
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
