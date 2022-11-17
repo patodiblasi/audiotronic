@@ -1,7 +1,7 @@
 
 #include "fft.h"
 
-void fft(double data_re[], double data_im[], const unsigned int N)
+void fft_compute(double data_re[], double data_im[], const unsigned int N)
 {
 	rearrange(data_re, data_im, N);
 	compute(data_re, data_im, N);
@@ -67,7 +67,7 @@ void compute(double data_re[], double data_im[], const unsigned int N)
 }
 
 // Convierte todos los valores a positivos
-void fft_amplitude_to_magnitude(double *fft_real, unsigned int fft_length)
+void fft_amplitude_to_magnitude(double *fft_real, int fft_length)
 {
 	for (int i=0; i < fft_length; i++) {
 		if (fft_real[i] < 0) {

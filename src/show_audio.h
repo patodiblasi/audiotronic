@@ -12,8 +12,8 @@
 #define COLOR_PAIR_PRIMARY 3
 #define COLOR_PAIR_ERROR 4
 
-void draw_wave(int16_t* samples, unsigned int length, unsigned int samples_per_line, double multiplier);
-void print_wave_values(int16_t* samples, unsigned int length);
+void draw_wave(int16_t* samples, int length, int samples_per_line, double multiplier);
+void print_wave_values(int16_t* samples, int length);
 
 int ncurses_start();
 void ncurses_end();

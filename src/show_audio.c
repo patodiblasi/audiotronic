@@ -8,9 +8,9 @@ WINDOW* body_window;
 // samples_per_line: Indica qué tanto se comprime verticalmente el dibujo.
 // La cantidad de samples indicados por samples_per_line se promedian para formar una sola línea.
 // multiplier: Multiplicador para la amplitud. Si el resultado excede el máximo, se cropea.
-void draw_wave(int16_t* samples, unsigned int length, unsigned int samples_per_line, double multiplier)
+void draw_wave(int16_t* samples, int length, int samples_per_line, double multiplier)
 {
-	unsigned int max_amplitude = 65535;
+	int max_amplitude = 65535;
 
 	int i = 0;
 	int j = 0;
@@ -58,7 +58,7 @@ void draw_wave(int16_t* samples, unsigned int length, unsigned int samples_per_l
 	}
 }
 
-void print_wave_values(int16_t* samples, unsigned int length)
+void print_wave_values(int16_t* samples, int length)
 {
 	for (int i = 0; i < length; i++) {
 		printf("\n%d\t%d", i, (short int)samples[i]);
@@ -118,7 +118,7 @@ int ncurses_loop(t_fft* fft)
 	// }
 
 	// TODO: sacar del loop
-	unsigned int bands_length = 28;
+	int bands_length = 28;
 	t_frequency_band bands_values[bands_length];
 	t_frequency_band_array band_array;
 	band_array.values = bands_values;
@@ -175,9 +175,6 @@ void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array)
 	int band_containter_width = 6;
 	int margin_left = 5;
 
-	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 24) - 1;
-
 	fft_to_bands(fft, band_array);
 
 	for (int i = 1; i <= band_array->length; i++) {
@@ -216,6 +213,8 @@ void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array)
 			wattron(win, COLOR_PAIR(COLOR_PAIR_TEXT));
 			mvwprintw(win, bar_bottom+2, x, "%ld", lround(band->min));
 			mvwprintw(win, bar_bottom+3, x, "Hz");
+
+			mvwprintw(win, bar_bottom - bar_height - 2, x, "%.2f", band->value);
 		}
 	}
 }
