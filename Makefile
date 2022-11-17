@@ -5,7 +5,7 @@ CC := g++
 # CFLAGS := -O3
 CFLAGS := -Wall -Wextra -g
 LIBS := -lm -lncurses
-CONSTANTS := -D LOG_USE_COLOR -D USE_ARDUINO_FFT_MODULE=0 -D SHOW_FFMPEG_OUTPUT=0
+CONSTANTS := -D LOG_USE_COLOR -D USE_ARDUINO_FFT_MODULE=1 -D SHOW_FFMPEG_OUTPUT=0
 
 SRC_DIR := src
 BUILD_DIR := build
@@ -54,7 +54,7 @@ all: setup $(ALL_OBJ_PATH) $(AUDIOTRONIC_EXE_PATH)
 # Objetos:
 
 $(AUDIOTRONIC_EXE_PATH): $(ALL_OBJ_PATH) $(MAIN_PATH)
-	$(CC) $(CFLAGS) $(LIBS) $(CPLSDL) $(LIBSDL) $(ALL_OBJ_PATH) $(MAIN_PATH) -g -o $@
+	$(CC) $(CFLAGS) $(LIBS) $(CPLSDL) $(LIBSDL) $(ALL_OBJ_PATH) $(CONSTANTS) $(MAIN_PATH) -g -o $@
 
 $(BUILD_DIR)/arduinoFFT.o: $(SRC_DIR)/arduinoFFT/arduinoFFT.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -65,5 +65,5 @@ $(BUILD_DIR)/sdl_screen.o: $(SRC_DIR)/sdl_screen.c
 .SECONDEXPANSION:
 
 $(IMPLICIT_TARGETS): %.o: $$(addprefix $(SRC_DIR)/, $$(notdir %.c))
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(CONSTANTS) -c $< -o $@
 
