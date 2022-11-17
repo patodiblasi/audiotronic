@@ -3,6 +3,7 @@
 // https://batchloaf.wordpress.com/2017/02/10/a-simple-way-to-read-and-write-audio-and-video-files-in-c-using-ffmpeg/
 // http://trac.ffmpeg.org/wiki/StreamingGuide
 // https://dsp.stackexchange.com/questions/8317/fft-amplitude-or-magnitude
+// http://dranger.com/ffmpeg/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,6 +99,7 @@ int main(void)
 		now = get_utime();
 		run_audio_frame = (now - last_audio_time) >= audio_frame_duration;
 		run_video_frame = (now - last_video_time) >= video_frame_duration;
+		// printf("\nframe %ld: %ld", frame_number, now);
 		if (run_audio_frame) {
 			// printf("\nframe %ld: %ld AUDIO", frame_number, now);
 			last_audio_time = now;
@@ -107,13 +109,12 @@ int main(void)
 			last_video_time = now;
 		}
 		////////////////////////////////////////////////////////////////////////
-
 		if (run_audio_frame) {
 			continue_loop = continue_loop && audio_loop(&audio_info);
 		}
 
 		if (run_video_frame) {
-			continue_loop = continue_loop && ncurses_loop(&audio_info.fft);
+			continue_loop = continue_loop && ncurses_loop(&audio_info.fft, &audio_info.audio_in);
 			// continue_loop = continue_loop && screen_frame(screen, audio_info.chunk.samples, audio_info.chunk.length, audio_info.real, audio_info.chunk.length);
 		}
 	}

@@ -10,15 +10,22 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 typedef struct {
 	int length;
 	int16_t* samples;
 } t_wave;
 
-FILE* open_audio_file(const char* filename);
-FILE* open_audio_device(const char* device, const char* filename, int sample_rate);
-void close_audio(FILE* fp);
+typedef struct {
+	FILE* stream;
+	FILE* errors;
+} t_stream;
+
+int multi_popen_fds(int fds[], int fds_length, const char command[]);
+t_stream open_audio_file(const char* filename);
+t_stream open_audio_device(const char* device, const char* filename, int sample_rate);
+void close_audio(t_stream* stream);
 t_wave read_audio(FILE* fp, int samples);
 
 #endif

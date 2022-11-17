@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <ncurses.h>
+#include "read_audio.h"
 #include "process_audio.h"
 
 #define COLOR_PAIR_TEXT 1
@@ -17,7 +18,7 @@ void print_wave_values(int16_t* samples, int length);
 
 int ncurses_start();
 void ncurses_end();
-int ncurses_loop(t_fft* fft);
+int ncurses_loop(t_fft* fft, t_stream* audio_in);
 
 void delete_win(WINDOW* win);
 

@@ -1,7 +1,71 @@
 #include "read_audio.h"
 
-FILE* open_audio_file(const char* filename)
+// Ejecuta un comando en un nuevo proceso, y redirige los descriptores fds
+// hacia nuevos pipes, que posteriormente son retornados en el mismo array.
+// En caso de error, retorna 0.
+
+// Ver:
+// https://jineshkj.wordpress.com/2006/12/22/how-to-capture-stdin-stdout-and-stderr-of-child-program/
+// https://www.gnu.org/software/libc/manual/html_node/Low_002dLevel-I_002fO.html
+int multi_popen_fds(int fds[], int fds_length, const char command[])
 {
+	// Descriptores de los pipes a los que voy a redirigir.
+	// [0] lectura, [1] escritura
+	int new_fds[fds_length][2];
+
+	// Creo un pipe por cada file descriptor:
+	for (int i=0; i<fds_length; i++) {
+		if (pipe(new_fds[i]) != 0) {
+			// Error: cierro los abiertos
+			for (int j=0; j<i; j++) {
+				close(new_fds[j][0]);
+				close(new_fds[j][1]);
+			}
+			return 0;
+		}
+	}
+
+	// Duplico el proceso actual
+	if (!fork()) {
+		// Estoy en el proceso hijo
+
+		for (int i=0; i<fds_length; i++) {
+			// Redirijo los descriptores de escritura:
+			if (dup2(new_fds[i][1], fds[1]) == -1) {
+				// Error en el proceso hijo:
+				exit(1);
+			}
+			// Cierro descriptores que ya no necesito (lectura y escritura):
+			close(new_fds[i][0]);
+			close(new_fds[i][1]);
+		}
+
+		// TODO: idealmente debería liberar el resto de los recursos
+		// explícitamente, aunque igual se liberan al hacer execv
+		// https://stackoverflow.com/questions/5429141/what-happens-to-malloced-memory-after-exec-changes-the-program-image
+
+		// Reemplazo el proceso actual con el comando a ejecutar:
+		char *argv[] = {};
+		execv(command, argv);
+		exit(0);
+	} else {
+		// Estoy en el proceso padre
+
+		for (int i=0; i<fds_length; i++) {
+			// Cierro descriptores que ya no necesito (escritura):
+			close(new_fds[i][1]);
+
+			// Agrego al resultado los nuevos descriptores de lectura:
+			fds[i] = new_fds[i][0];
+		}
+	}
+
+	return 1;
+}
+
+t_stream open_audio_file(const char* filename)
+{
+	t_stream stream;
 	char command[200] = "";
 	char command_format[100] = "ffmpeg";
 
@@ -12,14 +76,23 @@ FILE* open_audio_file(const char* filename)
 
 	sprintf(command, command_format, filename);
 
-	printf("\nAbriendo pipe: %s\n", command);
-	return popen(command, "r");
+	printf("\nAbriendo pipes SDTOUT y STDERR: %s\n", command);
+
+	int fds[] = { STDOUT_FILENO, STDERR_FILENO };
+
+	multi_popen_fds(fds, 2, command);
+
+	stream.stream = fdopen(fds[0], "r");
+	stream.errors = fdopen(fds[1], "r");
+
+	return stream;
 }
 
-FILE* open_audio_device(const char* device, const char* filename, int sample_rate)
+t_stream open_audio_device(const char* device, const char* filename, int sample_rate)
 {
 	// Captura del mic Plantronics:
 	// ffmpeg -f alsa -sample_rate 44100 -i front:CARD=USB,DEV=0 -t 30 out.wav
+	t_stream stream;
 	char command[200] = "";
 	char command_format[100] = "ffmpeg";
 	char command_device_options[100] = "";
@@ -43,15 +116,28 @@ FILE* open_audio_device(const char* device, const char* filename, int sample_rat
 	sprintf(command, command_format, filename);
 
 	printf("\nAbriendo pipe: %s\n", command);
-	return popen(command, "r");
+
+	int fds[] = { STDOUT_FILENO, STDERR_FILENO };
+
+	multi_popen_fds(fds, 2, command);
+
+	stream.stream = fdopen(fds[0], "r");
+	stream.errors = fdopen(fds[1], "r");
+
+	return stream;
 }
 
-void close_audio(FILE* fp)
+void close_audio(t_stream* stream)
 {
-	printf("\nCerrando archivo\n");
-	fflush(fp);
-	pclose(fp);
-	fp = NULL;
+	printf("\nCerrando stream\n");
+
+	fflush(stream->stream);
+	pclose(stream->stream);
+	stream->stream = NULL;
+
+	fflush(stream->errors);
+	pclose(stream->errors);
+	stream->errors = NULL;
 }
 
 t_wave read_audio(FILE* fp, int samples_count)

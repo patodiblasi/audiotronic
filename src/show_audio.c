@@ -4,6 +4,9 @@
 
 WINDOW* header_window;
 WINDOW* body_window;
+WINDOW* footer_window;
+
+int audio_frame = 0;
 
 // samples_per_line: Indica qué tanto se comprime verticalmente el dibujo.
 // La cantidad de samples indicados por samples_per_line se promedian para formar una sola línea.
@@ -93,6 +96,7 @@ int ncurses_start()
 
 	header_window = newwin(10, 180, 0, 4);
 	body_window = newwin(30, 180, 10, 4);
+	footer_window = newwin(10, 180, 40, 4);
 
 	box(header_window, 0 , 0);
 	draw_logo(header_window);
@@ -105,10 +109,11 @@ void ncurses_end()
 {
 	delete_win(header_window);
 	delete_win(body_window);
+	delete_win(footer_window);
 	endwin();
 }
 
-int ncurses_loop(t_fft* fft)
+int ncurses_loop(t_fft* fft, t_stream* audio_in)
 {
 	// Esto es bloqueante, así que no me sirve!
 	// char c = wgetch(header_window);
@@ -126,9 +131,31 @@ int ncurses_loop(t_fft* fft)
 
 	wclear(body_window);
 	box(body_window, 0 , 0);
+	mvwprintw(footer_window, 2, 5, "draw_fft");
 	draw_fft(body_window, fft, &band_array);
 	wrefresh(body_window);
 
+	wclear(footer_window);
+	mvwprintw(footer_window, 2, 5, "audio_frame: %d", audio_frame);
+
+	box(footer_window, 0 , 0);
+	if (feof(audio_in->stream)) {
+		mvwprintw(footer_window, 2, 5, "Fin de stream");
+		wrefresh(footer_window);
+		fprintf(stdout, "\nFin de stream.\n");
+		fflush(stdout);
+		clearerr(audio_in->stream);
+		return 0;
+	}
+	if (ferror(audio_in->stream)) {
+		mvwprintw(footer_window, 2, 5, "Error de stream");
+		wrefresh(footer_window);
+		fprintf(stdout, "\nError de stream.\n");
+		clearerr(audio_in->stream);
+		return 0;
+	}
+
+	wrefresh(footer_window);
 	return 1;
 }
 

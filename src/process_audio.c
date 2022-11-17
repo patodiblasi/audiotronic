@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 #include "process_audio.h"
 
 audio_config new_audio_config(int min_freq, int max_freq)

@@ -10,7 +10,6 @@
 
 int audio_setup(t_audio_info* audio_info)
 {
-	audio_info->empty_stream_count = 0;
 	audio_info->config = new_audio_config(MIN_FREQ, MAX_FREQ);
 
 	printf("Leyendo de a %d samples a %d Hz (%.2f ms)",
@@ -19,9 +18,9 @@ int audio_setup(t_audio_info* audio_info)
 		audio_info->config.min_samples_duration_ms
 	);
 
-	// audio_info->fp = open_audio_file("audios/sweep_log.wav");
-	audio_info->fp = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
-	if (!audio_info->fp) {
+	audio_info->audio_in = open_audio_file("audios/sweep_log.wav");
+	// audio_info->audio_in = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
+	if (!audio_info->audio_in.stream) {
 		fprintf(stderr, "\nError abriendo audio.\n");
 		return 0;
 	}
@@ -38,19 +37,10 @@ int audio_setup(t_audio_info* audio_info)
 
 int audio_loop(t_audio_info* audio_info)
 {
-	audio_info->chunk = read_audio(audio_info->fp, audio_info->config.min_samples);
-	if (audio_info->chunk.length == 0) {
-		audio_info->empty_stream_count++;
-		if (audio_info->empty_stream_count > 100) {
-			printf("\n---------- FIN DE STREAM ----------\n");
-			// Como corto este ciclo de loop, hago la limpieza acá
-			free(audio_info->chunk.samples);
-			audio_info->chunk.samples = NULL;
-			return 0;
-		}
-	}
+	audio_info->chunk = read_audio(audio_info->audio_in.stream, audio_info->config.min_samples);
 
-	audio_info->empty_stream_count = 0;
+	// TODO: chequear errores?
+	// Ya se hace en hilo show_audio, aunque parece más adecuado acá. Desacoplar
 
 	// TODO: tendría que asegurar que sea potencia de 2 antes de hacer cálculos
 	audio_info->fft.length = audio_info->chunk.length;
@@ -62,6 +52,9 @@ int audio_loop(t_audio_info* audio_info)
 		audio_info->fft.real[i] = (double)(audio_info->chunk.samples[i]);
 		audio_info->fft.imaginary[i] = 0;
 	}
+
+	printf("\naudio_loop: signal_to_fft");
+	fflush(stdout);
 
 	signal_to_fft(&audio_info->fft);
 
@@ -77,5 +70,5 @@ void audio_end(t_audio_info* audio_info)
 	free(audio_info->fft.imaginary);
 	audio_info->fft.imaginary = NULL;
 
-	close_audio(audio_info->fp);
+	close_audio(&audio_info->audio_in);
 }
