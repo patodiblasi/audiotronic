@@ -13,6 +13,8 @@
 #include "main_audio.h"
 // #include "sdl_screen.h"
 #include "show_audio.h"
+#include "requests.h"
+#include "envs.h"
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
@@ -41,6 +43,7 @@ void close()
 {
 	ncurses_end();
 	audio_end(&audio_info);
+   cleanup_requests();
 	exit(0);
 }
 
@@ -54,9 +57,11 @@ void on_exit_signal(int s)
 
 int main(void)
 {
+   check_envs();
+   init_requests();
 	signal(SIGINT, on_exit_signal);
 	signal(SIGTERM, on_exit_signal);
-
+   turn_off();
 	printf("\n\n");
 
 	if (!audio_setup(&audio_info)) {
@@ -116,10 +121,18 @@ int main(void)
 			continue_loop = continue_loop && ncurses_loop(&audio_info.fft);
 			// continue_loop = continue_loop && screen_frame(screen, audio_info.chunk.samples, audio_info.chunk.length, audio_info.real, audio_info.chunk.length);
 		}
+
+      if (frame_number % 50 == 0) {
+         turn_off();
+      } else {
+         turn_on();
+      }
 	}
 
 	audio_end(&audio_info);
 	ncurses_end();
+   turn_off();
+   cleanup_requests();
 	// close_screen(screen);
 	////////////////////////////////////////////////////////////////////////////
 
