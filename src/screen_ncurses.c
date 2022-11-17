@@ -1,76 +1,14 @@
 #include <ncurses.h>
-#include "show_audio.h"
+#include "screen_ncurses.h"
 #include "process_audio.h"
 
 WINDOW* header_window;
 WINDOW* body_window;
 WINDOW* footer_window;
 
-int audio_frame = 0;
-
-// samples_per_line: Indica qué tanto se comprime verticalmente el dibujo.
-// La cantidad de samples indicados por samples_per_line se promedian para formar una sola línea.
-// multiplier: Multiplicador para la amplitud. Si el resultado excede el máximo, se cropea.
-void draw_wave(int16_t* samples, int length, int samples_per_line, double multiplier)
+int screen_ncurses_start()
 {
-	int max_amplitude = 65535;
-
-	int i = 0;
-	int j = 0;
-	int r = 0;
-
-	int scale = 200;
-	int col_limit = scale / 2;
-
-	for (i = 0; i < length; i += samples_per_line) {
-		int line_sum = 0;
-		int sum_count = samples_per_line;
-		if (i + sum_count > length) {
-			sum_count = length - i;
-		}
-
-		for (r = 0; r < sum_count; r++) {
-			line_sum += samples[i + r];
-		}
-
-		// TODO: optimizar con shift?
-		int amplitude_columns = col_limit * multiplier * line_sum / (double)(sum_count * max_amplitude);
-
-		if (amplitude_columns > col_limit) {
-			amplitude_columns = col_limit;
-		} else if (amplitude_columns < -col_limit) {
-			amplitude_columns = -col_limit;
-		}
-
-		printf("\n");
-		if (amplitude_columns < 0) {
-			for (j = -col_limit; j < amplitude_columns; j++) {
-				printf(" ");
-			}
-			for (j = amplitude_columns; j < 0; j++) {
-				printf("-");
-			}
-		} else {
-			for (j = -col_limit; j < 0; j++) {
-				printf(" ");
-			}
-			for (j = 0; j < amplitude_columns; j++) {
-				printf("-");
-			}
-		}
-	}
-}
-
-void print_wave_values(int16_t* samples, int length)
-{
-	for (int i = 0; i < length; i++) {
-		printf("\n%d\t%d", i, (short int)samples[i]);
-	}
-}
-
-int ncurses_start()
-{
-	printf("Iniciando modo NCURSES");
+	printf("\nIniciando modo NCURSES");
 
 	initscr();
 	curs_set(0);
@@ -105,15 +43,16 @@ int ncurses_start()
 	return 1;
 }
 
-void ncurses_end()
+int screen_ncurses_end()
 {
 	delete_win(header_window);
 	delete_win(body_window);
 	delete_win(footer_window);
 	endwin();
+	printf("\nTerminando modo NCURSES");
 }
 
-int ncurses_loop(t_fft* fft, t_stream* audio_in)
+int screen_ncurses_loop(t_fft* fft, t_stream* audio_in)
 {
 	// Esto es bloqueante, así que no me sirve!
 	// char c = wgetch(header_window);
@@ -136,26 +75,31 @@ int ncurses_loop(t_fft* fft, t_stream* audio_in)
 	wrefresh(body_window);
 
 	wclear(footer_window);
-	mvwprintw(footer_window, 2, 5, "audio_frame: %d", audio_frame);
-
 	box(footer_window, 0 , 0);
-	if (feof(audio_in->stream)) {
-		mvwprintw(footer_window, 2, 5, "Fin de stream");
-		wrefresh(footer_window);
-		fprintf(stdout, "\nFin de stream.\n");
-		fflush(stdout);
-		clearerr(audio_in->stream);
-		return 0;
-	}
-	if (ferror(audio_in->stream)) {
-		mvwprintw(footer_window, 2, 5, "Error de stream");
-		wrefresh(footer_window);
-		fprintf(stdout, "\nError de stream.\n");
-		clearerr(audio_in->stream);
-		return 0;
-	}
+
+	char line[300];
+	char* result;
+	char* result2;
+
+	result = fgets(line, 300, audio_in->errors);
+	result2 = fgets(line, 300, stdout);
+	mvwprintw(footer_window, 2, 5, "stderr: %s", result);
+	mvwprintw(footer_window, 3, 5, "stderr2: %s", result);
+	// if (feof(audio_in->stream)) {
+	// 	mvwprintw(footer_window, 2, 5, "Fin de stream");
+	// 	wrefresh(footer_window);
+	// 	clearerr(audio_in->stream);
+	// 	return 0;
+	// }
+	// if (ferror(audio_in->stream)) {
+	// 	mvwprintw(footer_window, 2, 5, "Error de stream");
+	// 	wrefresh(footer_window);
+	// 	clearerr(audio_in->stream);
+	// 	return 0;
+	// }
 
 	wrefresh(footer_window);
+
 	return 1;
 }
 

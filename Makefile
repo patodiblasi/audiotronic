@@ -11,7 +11,7 @@ SRC_DIR := src
 BUILD_DIR := build
 MAIN_PATH := $(SRC_DIR)/main.c
 AUDIOTRONIC_EXE := audiotronic
-EXPLICIT_OBJ := arduinoFFT.o sdl_screen.o
+EXPLICIT_OBJ := arduinoFFT.o screen_sdl.o screen.o
 
 ################################################################################
 # Magia:
@@ -59,7 +59,10 @@ $(AUDIOTRONIC_EXE_PATH): $(ALL_OBJ_PATH) $(MAIN_PATH)
 $(BUILD_DIR)/arduinoFFT.o: $(SRC_DIR)/arduinoFFT/arduinoFFT.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/sdl_screen.o: $(SRC_DIR)/sdl_screen.c
+$(BUILD_DIR)/screen_sdl.o: $(SRC_DIR)/screen_sdl.c
+	$(CC) $(CFLAGS) -c $(CPLSDL) $< -o $@
+
+$(BUILD_DIR)/screen.o: $(SRC_DIR)/screen.c
 	$(CC) $(CFLAGS) -c $(CPLSDL) $< -o $@
 
 .SECONDEXPANSION:

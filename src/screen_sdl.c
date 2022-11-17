@@ -1,21 +1,32 @@
-#ifndef IS_SDL_SCREEN_INCLUDED
-#define IS_SDL_SCREEN_INCLUDED
-
-#include <SDL.h>
-#include <SDL_image.h>
 #include <stdio.h>
 #include <string>
 #include <cmath>
+#include "screen_sdl.h"
 
-typedef struct {
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	SDL_Surface* surface;
-	SDL_Surface* logo;
-	int width;
-	int height;
-	int is_ok;
-} sdl_screen;
+
+int screen_sdl_start()
+{
+	printf("\nIniciando modo SDL");
+
+	sdl_screen screen = start_screen(800, 600);
+	if (!screen.is_ok) {
+		return 0;
+	}
+
+	return 1;
+}
+
+int screen_sdl_end()
+{
+	printf("\nTerminando modo SDL");
+	return 1;
+}
+
+int screen_sdl_loop(t_fft* fft, t_stream* audio_in)
+{
+	printf("\nLoop modo SDL");
+	return 1;
+}
 
 sdl_screen create_screen(int width, int height)
 {
@@ -195,5 +206,3 @@ sdl_screen start_screen(int width, int height)
 
 	return screen;
 }
-
-#endif

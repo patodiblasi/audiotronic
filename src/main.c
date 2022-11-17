@@ -12,8 +12,8 @@
 #include <time.h>
 #include <signal.h>
 #include "main_audio.h"
-// #include "sdl_screen.c"
-#include "show_audio.h"
+#include "screen.h"
+
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
@@ -40,7 +40,7 @@ long int get_utime()
 
 void close()
 {
-	ncurses_end();
+	screen_end();
 	audio_end(&audio_info);
 	exit(0);
 }
@@ -64,16 +64,10 @@ int main(void)
 		close();
 	}
 
-	if (!ncurses_start()) {
+	screen_set_mode(SCREEN_MODE_TEXT);
+	if (!screen_start()) {
 		close();
 	}
-
-	// sdl_screen screen = start_screen(800, 600);
-	// if (!screen.is_ok) {
-	// 	fprintf(stderr, "\nError creando pantalla.\n");
-	// 	close_screen(screen);
-	// 	return 2;
-	// }
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -114,13 +108,13 @@ int main(void)
 		}
 
 		if (run_video_frame) {
-			continue_loop = continue_loop && ncurses_loop(&audio_info.fft, &audio_info.audio_in);
+			continue_loop = continue_loop && screen_loop(&audio_info.fft, &audio_info.audio_in);
 			// continue_loop = continue_loop && screen_frame(screen, audio_info.chunk.samples, audio_info.chunk.length, audio_info.real, audio_info.chunk.length);
 		}
 	}
 
 	audio_end(&audio_info);
-	ncurses_end();
+	screen_end();
 	// close_screen(screen);
 	////////////////////////////////////////////////////////////////////////////
 

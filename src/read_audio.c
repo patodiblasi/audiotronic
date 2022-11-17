@@ -26,7 +26,7 @@ int multi_popen_fds(int fds[], int fds_length, const char command[])
 	}
 
 	// Duplico el proceso actual
-	if (!fork()) {
+	if (fork() == 0) {
 		// Estoy en el proceso hijo
 
 		for (int i=0; i<fds_length; i++) {
