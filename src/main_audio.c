@@ -12,7 +12,7 @@ int audio_setup(t_audio_info* audio_info)
 {
 	audio_info->config = new_audio_config(MIN_FREQ, MAX_FREQ);
 
-	printf("Leyendo de a %d samples a %d Hz (%.2f ms)",
+	printf("\nLeyendo de a %d samples a %d Hz (%.2f ms)",
 		audio_info->config.min_samples,
 		audio_info->config.min_sample_rate,
 		audio_info->config.min_samples_duration_ms

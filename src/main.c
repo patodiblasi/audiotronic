@@ -61,9 +61,13 @@ int main(void)
 	signal(SIGINT, on_exit_signal);
 	signal(SIGTSTP, on_exit_signal);
 	signal(SIGTERM, on_exit_signal);
-	check_envs();
 
 	printf("\n\n");
+
+	if (!check_envs()) {
+		// No corto la ejecución
+		fprintf(stderr, "\nNo fue posible cargar todas las variables de entorno.");
+	}
 
 	init_requests();
 	turn_off();

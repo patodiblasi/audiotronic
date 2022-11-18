@@ -1,4 +1,4 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void check_envs();
+int check_envs();
