@@ -12,6 +12,7 @@
 -  Compilar: `make all`
 -  Ejecutar: `make run`
 -  Compilar + ejecutar: `make`
+-  Debug (gdb): `make debug`
 
 ## Pendiente
 

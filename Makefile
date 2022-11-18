@@ -35,7 +35,7 @@ LIBSDL := $(shell $(SDLCFG) --libs) -lSDL2_image
 ################################################################################
 # Reglas de entrada:
 
-.PHONY: clean run setup
+.PHONY: clean setup run debug
 
 default: all run
 
@@ -47,6 +47,9 @@ setup:
 
 run:
 	./$(AUDIOTRONIC_EXE_PATH)
+
+debug:
+	gdb $(AUDIOTRONIC_EXE_PATH)
 
 all: setup $(ALL_OBJ_PATH) $(AUDIOTRONIC_EXE_PATH)
 
