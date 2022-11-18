@@ -7,7 +7,8 @@
 // Ver:
 // https://jineshkj.wordpress.com/2006/12/22/how-to-capture-stdin-stdout-and-stderr-of-child-program/
 // https://www.gnu.org/software/libc/manual/html_node/Low_002dLevel-I_002fO.html
-int multi_popen_fds(int fds[], int fds_length, const char command[])
+// Inspirado levemente en código original de popen.
+int multi_popen_fds(int fds[], int fds_length, char command[])
 {
 	// Descriptores de los pipes a los que voy a redirigir.
 	// [0] lectura, [1] escritura
@@ -26,13 +27,14 @@ int multi_popen_fds(int fds[], int fds_length, const char command[])
 	}
 
 	// Duplico el proceso actual
-	if (fork() == 0) {
+	if (vfork() == 0) {
 		// Estoy en el proceso hijo
 
 		for (int i=0; i<fds_length; i++) {
 			// Redirijo los descriptores de escritura:
-			if (dup2(new_fds[i][1], fds[1]) == -1) {
+			if (dup2(new_fds[i][1], fds[i]) == -1) {
 				// Error en el proceso hijo:
+				fprintf(stderr, "\nmulti_popen_fds: dup2: No fue posible redirigir los descriptores");
 				exit(1);
 			}
 			// Cierro descriptores que ya no necesito (lectura y escritura):
@@ -45,8 +47,8 @@ int multi_popen_fds(int fds[], int fds_length, const char command[])
 		// https://stackoverflow.com/questions/5429141/what-happens-to-malloced-memory-after-exec-changes-the-program-image
 
 		// Reemplazo el proceso actual con el comando a ejecutar:
-		char *argv[] = {};
-		execv(command, argv);
+		char *argv[] = { "audiotronic_ffmpeg", "-c", command, NULL };
+		execv("/bin/sh", argv);
 		exit(0);
 	} else {
 		// Estoy en el proceso padre

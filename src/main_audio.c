@@ -17,8 +17,8 @@ int audio_setup(t_audio_info* audio_info)
 		audio_info->config.min_samples_duration_ms
 	);
 
-	audio_info->audio_in = open_audio_file("audios/sweep_log.wav");
-	// audio_info->audio_in = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
+	// audio_info->audio_in = open_audio_file("audios/sweep_log.wav");
+	audio_info->audio_in = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
 
 	if (!audio_info->audio_in.stream) {
 		fprintf(stderr, "\nError abriendo audio.\n");
@@ -57,9 +57,9 @@ int audio_loop(t_audio_info* audio_info)
 		is_stream_ok = 0;
 	}
 
-	if (is_stream_ok) {
+	if (!is_stream_ok) {
 		// Sigo en la próxima
-		return 0;
+		return 1;
 	}
 
 	audio_info->fft.length = audio_info->chunk.length;

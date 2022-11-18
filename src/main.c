@@ -66,7 +66,7 @@ int main(void)
 		close();
 	}
 
-	screen_set_mode(SCREEN_MODE_TEXT);
+	screen_set_mode(SCREEN_MODE_NCURSES);
 	if (!screen_start()) {
 		close();
 	}
