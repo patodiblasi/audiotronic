@@ -13,7 +13,8 @@
 #include <signal.h>
 #include "main_audio.h"
 #include "screen.h"
-
+#include "requests.h"
+#include "envs.h"
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
@@ -43,6 +44,7 @@ void close()
 {
 	screen_end();
 	audio_end(&audio_info);
+	cleanup_requests();
 	exit(0);
 }
 
@@ -59,8 +61,12 @@ int main(void)
 	signal(SIGINT, on_exit_signal);
 	signal(SIGTSTP, on_exit_signal);
 	signal(SIGTERM, on_exit_signal);
+	check_envs();
 
 	printf("\n\n");
+
+	init_requests();
+	turn_off();
 
 	if (!audio_setup(&audio_info)) {
 		close();
@@ -115,10 +121,18 @@ int main(void)
 			screen_data.fft = &audio_info.fft;
 			continue_loop = screen_loop(&screen_data);
 		}
+
+		if (frame_number % 50 == 0) {
+			turn_off();
+		} else {
+			turn_on();
+		}
 	}
 
 	screen_end();
 	audio_end(&audio_info);
+	turn_off();
+	cleanup_requests();
 	////////////////////////////////////////////////////////////////////////////
 
 	return 0;

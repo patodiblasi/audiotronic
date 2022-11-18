@@ -5,6 +5,7 @@
 -  ncurses
 -  SDL
 -  sdl2_image
+-  curl-devel
 
 ## Comandos
 

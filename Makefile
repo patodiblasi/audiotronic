@@ -4,7 +4,7 @@
 CC := g++
 # CFLAGS := -O3
 CFLAGS := -Wall -Wextra -g
-LIBS := -lm -lncurses
+LIBS := -lm -lncurses -lcurl
 CONSTANTS := -D LOG_USE_COLOR -D USE_ARDUINO_FFT_MODULE=1 -D SHOW_FFMPEG_OUTPUT=1
 
 SRC_DIR := src

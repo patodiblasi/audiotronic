@@ -2,10 +2,11 @@
 
 #define MIN_FREQ 24
 #define MAX_FREQ 24576
-#define AUDIO_DRIVER "alsa"
-#define AUDIO_INPUT_DEVICE "front:CARD=USB,DEV=0"
 
 // En Linux, para listar devices: arecord -L
+
+char* audio_driver = getenv("AUDIOTRONIC_DRIVER");
+char* audio_input_device = getenv("AUDIOTRONIC_INPUT");
 
 int audio_setup(t_audio_info* audio_info)
 {
@@ -18,7 +19,7 @@ int audio_setup(t_audio_info* audio_info)
 	);
 
 	// audio_info->audio_in = open_audio_file("audios/sweep_log.wav");
-	audio_info->audio_in = open_audio_device(AUDIO_DRIVER, AUDIO_INPUT_DEVICE, audio_info->config.min_sample_rate);
+	audio_info->audio_in = open_audio_device(audio_driver, audio_input_device, audio_info->config.min_sample_rate);
 
 	if (!audio_info->audio_in.stream) {
 		fprintf(stderr, "\nError abriendo audio.\n");
