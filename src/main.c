@@ -17,6 +17,7 @@
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
+t_screen_data screen_data;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +57,7 @@ void on_exit_signal(int s)
 int main(void)
 {
 	signal(SIGINT, on_exit_signal);
+	signal(SIGTSTP, on_exit_signal);
 	signal(SIGTERM, on_exit_signal);
 
 	printf("\n\n");
@@ -103,19 +105,20 @@ int main(void)
 			last_video_time = now;
 		}
 		////////////////////////////////////////////////////////////////////////
-		if (run_audio_frame) {
-			continue_loop = continue_loop && audio_loop(&audio_info);
+		if (run_audio_frame && continue_loop) {
+			continue_loop = audio_loop(&audio_info);
 		}
 
-		if (run_video_frame) {
-			continue_loop = continue_loop && screen_loop(&audio_info.fft, &audio_info.audio_in);
-			// continue_loop = continue_loop && screen_frame(screen, audio_info.chunk.samples, audio_info.chunk.length, audio_info.real, audio_info.chunk.length);
+		if (run_video_frame && continue_loop) {
+			screen_data.audio_in = &audio_info.audio_in;
+			screen_data.wave = &audio_info.chunk;
+			screen_data.fft = &audio_info.fft;
+			continue_loop = screen_loop(&screen_data);
 		}
 	}
 
-	audio_end(&audio_info);
 	screen_end();
-	// close_screen(screen);
+	audio_end(&audio_info);
 	////////////////////////////////////////////////////////////////////////////
 
 	return 0;

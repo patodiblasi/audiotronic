@@ -22,7 +22,7 @@ int screen_sdl_end()
 	return 1;
 }
 
-int screen_sdl_loop(t_fft* fft, t_stream* audio_in)
+int screen_sdl_loop(t_screen_data* data)
 {
 	printf("\nLoop modo SDL");
 	return 1;

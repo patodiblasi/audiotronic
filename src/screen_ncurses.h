@@ -2,7 +2,7 @@
 #define IS_SCREEN_NCURSES_INCLUDED
 
 #include <ncurses.h>
-#include "read_audio.h"
+#include "screen_types.h"
 #include "process_audio.h"
 
 #define COLOR_PAIR_TEXT 1
@@ -12,7 +12,7 @@
 
 int screen_ncurses_start();
 int screen_ncurses_end();
-int screen_ncurses_loop(t_fft* fft, t_stream* audio_in);
+int screen_ncurses_loop(t_screen_data* data);
 
 void delete_win(WINDOW* win);
 

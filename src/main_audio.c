@@ -37,12 +37,31 @@ int audio_setup(t_audio_info* audio_info)
 
 int audio_loop(t_audio_info* audio_info)
 {
+	int is_stream_ok = 1;
+
 	audio_info->chunk = read_audio(audio_info->audio_in.stream, audio_info->config.min_samples);
 
-	// TODO: chequear errores?
-	// Ya se hace en hilo de pantalla, aunque parece más adecuado acá. Desacoplar
+	if (feof(audio_info->audio_in.stream)) {
+		fflush(stdout);
+		fprintf(stderr, "\nFin de stream");
+		is_stream_ok = 0;
+	}
+	if (ferror(audio_info->audio_in.stream)) {
+		fflush(stdout);
+		fprintf(stderr, "\nError de stream");
+		is_stream_ok = 0;
+	}
+	if (!is_power_of_2(audio_info->chunk.length)) {
+		fflush(stdout);
+		fprintf(stderr, "\nEl segmento del stream no es potencia de 2");
+		is_stream_ok = 0;
+	}
 
-	// TODO: tendría que asegurar que sea potencia de 2 antes de hacer cálculos
+	if (is_stream_ok) {
+		// Sigo en la próxima
+		return 0;
+	}
+
 	audio_info->fft.length = audio_info->chunk.length;
 
 	// Copio la señal a dos nuevos arrays que van a necesitar las funciones de FFT
@@ -68,4 +87,9 @@ void audio_end(t_audio_info* audio_info)
 	audio_info->fft.imaginary = NULL;
 
 	close_audio(&audio_info->audio_in);
+}
+
+int is_power_of_2(int x)
+{
+	return (x & (x - 1)) == 0;
 }

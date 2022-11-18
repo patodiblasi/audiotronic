@@ -3,9 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
-#include <stdint.h>
-#include "read_audio.h"
-#include "process_audio.h"
+#include "screen_types.h"
 
 typedef struct {
 	SDL_Window* window;
@@ -19,7 +17,7 @@ typedef struct {
 
 int screen_sdl_start();
 int screen_sdl_end();
-int screen_sdl_loop(t_fft* fft, t_stream* audio_in);
+int screen_sdl_loop(t_screen_data* data);
 
 sdl_screen start_screen(int width, int height);
 

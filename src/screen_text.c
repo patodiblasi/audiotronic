@@ -14,9 +14,10 @@ int screen_text_end()
 	return 1;
 }
 
-int screen_text_loop(t_fft* fft, t_stream* audio_in)
+int screen_text_loop(t_screen_data* data)
 {
-	printf("\nLoop modo TEXTO");
+	// printf("\nLoop modo TEXTO");
+	print_wave_values(data->wave->samples, data->wave->length);
 	return 1;
 }
 
@@ -75,6 +76,10 @@ void draw_wave(int16_t* samples, int length, int samples_per_line, double multip
 
 void print_wave_values(int16_t* samples, int length)
 {
+	if (length == 0) {
+		printf("\n0 samples");
+		return;
+	}
 	for (int i = 0; i < length; i++) {
 		printf("\n%d\t%d", i, (short int)samples[i]);
 	}

@@ -34,15 +34,15 @@ int screen_end()
 	return 0;
 }
 
-int screen_loop(t_fft* fft, t_stream* audio_in)
+int screen_loop(t_screen_data* data)
 {
 	switch (_screen_output_mode) {
 		case SCREEN_MODE_TEXT:
-			return screen_text_loop(fft, audio_in);
+			return screen_text_loop(data);
 		case SCREEN_MODE_NCURSES:
-			return screen_ncurses_loop(fft, audio_in);
+			return screen_ncurses_loop(data);
 		case SCREEN_MODE_SDL:
-			return screen_sdl_loop(fft, audio_in);
+			return screen_sdl_loop(data);
 	}
 
 	return 0;

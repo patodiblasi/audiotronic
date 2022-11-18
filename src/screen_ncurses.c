@@ -52,7 +52,7 @@ int screen_ncurses_end()
 	printf("\nTerminando modo NCURSES");
 }
 
-int screen_ncurses_loop(t_fft* fft, t_stream* audio_in)
+int screen_ncurses_loop(t_screen_data* data)
 {
 	// Esto es bloqueante, así que no me sirve!
 	// char c = wgetch(header_window);
@@ -71,20 +71,20 @@ int screen_ncurses_loop(t_fft* fft, t_stream* audio_in)
 	wclear(body_window);
 	box(body_window, 0 , 0);
 	mvwprintw(footer_window, 2, 5, "draw_fft");
-	draw_fft(body_window, fft, &band_array);
+	draw_fft(body_window, data->fft, &band_array);
 	wrefresh(body_window);
 
 	wclear(footer_window);
 	box(footer_window, 0 , 0);
 
-	char line[300];
-	char* result;
-	char* result2;
+	// char line[300];
+	// char* result;
+	// char* result2;
 
-	result = fgets(line, 300, audio_in->errors);
-	result2 = fgets(line, 300, stdout);
-	mvwprintw(footer_window, 2, 5, "stderr: %s", result);
-	mvwprintw(footer_window, 3, 5, "stderr2: %s", result);
+	// result = fgets(line, 300, audio_in->errors);
+	// result2 = fgets(line, 300, stdout);
+	// mvwprintw(footer_window, 2, 5, "stderr: %s", result);
+	// mvwprintw(footer_window, 3, 5, "stderr2: %s", result);
 	// if (feof(audio_in->stream)) {
 	// 	mvwprintw(footer_window, 2, 5, "Fin de stream");
 	// 	wrefresh(footer_window);
