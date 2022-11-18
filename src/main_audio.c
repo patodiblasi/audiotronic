@@ -5,11 +5,30 @@
 
 // En Linux, para listar devices: arecord -L
 
-char* audio_driver = getenv("AUDIOTRONIC_DRIVER");
-char* audio_input_device = getenv("AUDIOTRONIC_INPUT");
+
 
 int audio_setup(t_audio_info* audio_info)
 {
+	char* tmp;
+	char audio_driver[100];
+	char audio_input_device[100];
+
+	// Copio porque el resultado de getenv puede ser sobrescrito, según la doc,
+	// ya que el string no está en memoria que yo haya reservado.
+	tmp = getenv("AUDIOTRONIC_DRIVER");
+	if (!tmp) {
+		fprintf(stderr, "\nFalta la variable de entorno AUDIOTRONIC_DRIVER.\n");
+		return 0;
+	}
+	strcpy(audio_driver, tmp);
+
+	tmp = getenv("AUDIOTRONIC_INPUT");
+	if (!tmp) {
+		fprintf(stderr, "\nFalta la variable de entorno AUDIOTRONIC_INPUT.\n");
+		return 0;
+	}
+	strcpy(audio_input_device, tmp);
+
 	audio_info->config = new_audio_config(MIN_FREQ, MAX_FREQ);
 
 	printf("\nLeyendo de a %d samples a %d Hz (%.2f ms)",

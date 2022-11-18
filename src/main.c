@@ -45,6 +45,11 @@ void close()
 	screen_end();
 	audio_end(&audio_info);
 	cleanup_requests();
+	turn_off();
+	printf("\n====================================================================================================\n");
+	fflush(stdout);
+	fflush(stderr);
+
 	exit(0);
 }
 
@@ -62,7 +67,7 @@ int main(void)
 	signal(SIGTSTP, on_exit_signal);
 	signal(SIGTERM, on_exit_signal);
 
-	printf("\n\n");
+	printf("\n====================================================================================================\n");
 
 	if (!check_envs()) {
 		// No corto la ejecución
@@ -133,10 +138,7 @@ int main(void)
 		}
 	}
 
-	screen_end();
-	audio_end(&audio_info);
-	turn_off();
-	cleanup_requests();
+	close();
 	////////////////////////////////////////////////////////////////////////////
 
 	return 0;

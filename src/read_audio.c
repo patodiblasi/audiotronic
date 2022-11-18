@@ -131,15 +131,23 @@ t_stream open_audio_device(const char* device, const char* filename, int sample_
 
 void close_audio(t_stream* stream)
 {
+	if (!stream) {
+		return;
+	}
+
 	printf("\nCerrando stream\n");
 
-	fflush(stream->stream);
-	pclose(stream->stream);
-	stream->stream = NULL;
+	if (stream->stream) {
+		fflush(stream->stream);
+		pclose(stream->stream);
+		stream->stream = NULL;
+	}
 
-	fflush(stream->errors);
-	pclose(stream->errors);
-	stream->errors = NULL;
+	if (stream->errors) {
+		fflush(stream->errors);
+		pclose(stream->errors);
+		stream->errors = NULL;
+	}
 }
 
 t_wave read_audio(FILE* fp, int samples_count)
