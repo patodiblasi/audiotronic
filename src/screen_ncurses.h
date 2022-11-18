@@ -15,6 +15,7 @@ int screen_ncurses_end();
 int screen_ncurses_loop(t_screen_data* data);
 
 void delete_win(WINDOW* win);
+void default_border(WINDOW * win);
 
 void draw_logo(WINDOW* win);
 void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array);

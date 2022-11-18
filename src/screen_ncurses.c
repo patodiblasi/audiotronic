@@ -36,7 +36,7 @@ int screen_ncurses_start()
 	body_window = newwin(30, 180, 10, 4);
 	footer_window = newwin(10, 180, 40, 4);
 
-	box(header_window, 0 , 0);
+	default_border(header_window);
 	draw_logo(header_window);
 	wrefresh(header_window);
 
@@ -69,13 +69,13 @@ int screen_ncurses_loop(t_screen_data* data)
 	band_array.length = bands_length;
 
 	wclear(body_window);
-	box(body_window, 0 , 0);
+	default_border(body_window);
 	mvwprintw(footer_window, 2, 5, "draw_fft");
 	draw_fft(body_window, data->fft, &band_array);
 	wrefresh(body_window);
 
 	wclear(footer_window);
-	box(footer_window, 0 , 0);
+	default_border(footer_window);
 
 	// char line[300];
 	// char* result;
@@ -188,4 +188,10 @@ void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array)
 			mvwprintw(win, bar_bottom - bar_height - 2, x, "%.2f", band->value);
 		}
 	}
+}
+
+
+void default_border(WINDOW * win)
+{
+	box(win, 0, 0);
 }
