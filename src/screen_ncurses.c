@@ -99,8 +99,6 @@ int screen_ncurses_loop(t_screen_data* data)
 
 	char line[content_width];
 
-	log_debug("SARASA");
-
 	// Puedo hacer un while no bloqueante con fgets SOLAMENTE porque en la
 	// redirección de stderr se especifica O_NONBLOCK para el descriptor.
 	while(fgets(line, content_width, stderr_read)) {

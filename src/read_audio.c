@@ -66,6 +66,7 @@ int multi_popen_fds(int fds[], int fds_length, char command[])
 	return 1;
 }
 
+// https://www.geeksforgeeks.org/non-blocking-io-with-pipes-in-c/
 t_stream open_audio_stream(char* command)
 {
 	t_stream stream;
@@ -155,13 +156,13 @@ void close_audio(t_stream* stream)
 	}
 }
 
-t_wave read_audio(FILE* fp, int samples_count)
+size_t read_audio(FILE* fp, t_wave* chunk, int desired_length)
 {
-	// Ver: fileno(fp) para obtener el file descriptor, y fcntl para hacer no bloqueante la lectura
-	// https://www.geeksforgeeks.org/non-blocking-io-with-pipes-in-c/
-	t_wave chunk;
-	chunk.samples = (int16_t*)malloc(sizeof(int16_t) * samples_count);
-	chunk.length = (int)fread(chunk.samples, 2, samples_count, fp);
+	int samples_to_read = desired_length - chunk->length;
+	int16_t* read_buffer = &(chunk->samples[chunk->length]);
 
-	return chunk;
+	size_t read_length = fread(read_buffer, sizeof(int16_t), samples_to_read, fp);
+	chunk->length += (int)read_length;
+
+	return read_length;
 }

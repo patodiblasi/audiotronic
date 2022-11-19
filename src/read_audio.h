@@ -27,6 +27,6 @@ t_stream open_audio_stream(char* command);
 t_stream open_audio_file(const char* filename);
 t_stream open_audio_device(const char* device, const char* filename, int sample_rate);
 void close_audio(t_stream* stream);
-t_wave read_audio(FILE* fp, int samples);
+size_t read_audio(FILE* fp, t_wave* chunk, int desired_length);
 
 #endif

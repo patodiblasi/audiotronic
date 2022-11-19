@@ -15,6 +15,4 @@ int audio_setup(t_audio_info* audio_info);
 int audio_loop(t_audio_info* audio_info);
 void audio_end(t_audio_info* audio_info);
 
-int is_power_of_2(int x);
-
 #endif

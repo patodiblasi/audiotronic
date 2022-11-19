@@ -76,7 +76,7 @@ int main(void)
 
 	print_separator();
 
-	screen_set_mode(SCREEN_MODE_TEXT);
+	screen_set_mode(SCREEN_MODE_NCURSES);
 	if (!screen_start()) {
 		close();
 	}
@@ -100,7 +100,7 @@ int main(void)
 	long now;
 	long last_audio_time = 0;
 	long last_video_time = 0;
-	long audio_frame_duration = 1000 * audio_info.config.min_samples_duration_ms; // Aprox 1/20 = 50 ms
+	long audio_frame_duration = 1000 * audio_info.config.min_fft_duration_ms; // Aprox 1/20 = 50 ms
 	long video_frame_duration = (1000000 / 30); // 1/60 = 16,66 ms
 
 	int run_audio_frame = 1;
