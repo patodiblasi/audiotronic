@@ -9,6 +9,7 @@ WINDOW* header_window;
 WINDOW* body_window;
 WINDOW* footer_window;
 WINDOW* footer_content_window;
+WINDOW* beat_window;
 
 FILE* stderr_read;
 
@@ -46,6 +47,7 @@ int screen_ncurses_start()
 	body_window = newwin(30, 180, 10, 4);
 	footer_window = newwin(10, 180, 40, 4);
 	footer_content_window = subwin(footer_window, 10-2, 180-4, 40+1, 4+2);
+	beat_window = newwin(10, 20, 0, 190);
 
 	default_border(header_window);
 	draw_logo(header_window);
@@ -58,6 +60,8 @@ int screen_ncurses_start()
 	idlok(footer_content_window, TRUE);
 	scrollok(footer_content_window, TRUE);
 	wrefresh(footer_window);
+
+	default_border(beat_window);
 
 	return 1;
 }
@@ -93,6 +97,10 @@ int screen_ncurses_loop(t_screen_data* data)
 	default_border(body_window);
 	draw_fft(body_window, data->fft, &band_array);
 	wrefresh(body_window);
+
+	wclear(beat_window);
+	draw_beat(beat_window, data->fft);
+	wrefresh(beat_window);
 
 	int content_height, content_width;
 	getmaxyx(footer_content_window, content_height, content_width); // Es una macro, por eso funciona
@@ -200,4 +208,26 @@ void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array)
 void default_border(WINDOW * win)
 {
 	box(win, 0, 0);
+}
+
+
+void draw_beat(WINDOW * win, t_fft* fft)
+{
+	double max_amplitude = pow(2, 18) - 1;
+	double val = bpf_average(40, 60, fft) / max_amplitude;
+	if (val < 0.4) {
+		return;
+	}
+
+	int win_height;
+	int win_width;
+	getmaxyx(win, win_height, win_width);
+
+	wattron(win, COLOR_PAIR(COLOR_PAIR_ACCENT));
+
+	for (int y=0; y<win_height; y++) {
+		for (int x=0; x<win_width; x++) {
+			mvwprintw(win, y, x, " ");
+		}
+	}
 }

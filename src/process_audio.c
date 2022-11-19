@@ -223,7 +223,7 @@ void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
 void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
 {
 	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 18) - 1;
+	double max_amplitude = pow(2, 19) - 1;
 
 	init_bands(fb_array, 20, 20000);
 

@@ -19,5 +19,6 @@ void default_border(WINDOW * win);
 
 void draw_logo(WINDOW* win);
 void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array);
+void draw_beat(WINDOW * win, t_fft* fft);
 
 #endif

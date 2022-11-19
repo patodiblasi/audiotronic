@@ -2,7 +2,7 @@
 #include <errno.h>
 #include "log/src/log.h"
 
-#define MIN_FREQ 21
+#define MIN_FREQ 30
 #define MAX_FREQ 22050
 
 int _audio_eof_count = 0; // Cuenta la cantidad de EOF seguidos que tuve al leer el audio
