@@ -1,10 +1,15 @@
 #include <ncurses.h>
+#include <curses.h>
 #include "screen_ncurses.h"
 #include "process_audio.h"
+#include "helpers.h"
 
 WINDOW* header_window;
 WINDOW* body_window;
 WINDOW* footer_window;
+WINDOW* footer_content_window;
+
+FILE* stderr_read;
 
 int screen_ncurses_start()
 {
@@ -35,10 +40,19 @@ int screen_ncurses_start()
 	header_window = newwin(10, 180, 0, 4);
 	body_window = newwin(30, 180, 10, 4);
 	footer_window = newwin(10, 180, 40, 4);
+	footer_content_window = subwin(footer_window, 10-2, 180-4, 40+1, 4+2);
 
 	default_border(header_window);
 	draw_logo(header_window);
 	wrefresh(header_window);
+
+	default_border(footer_window);
+
+	// Leo stderr y lo muestro en footer_content_window
+	stderr_read = redirect_stderr();
+	idlok(footer_content_window, TRUE);
+	scrollok(footer_content_window, TRUE);
+	wrefresh(footer_window);
 
 	return 1;
 }
@@ -48,6 +62,7 @@ int screen_ncurses_end()
 	delete_win(header_window);
 	delete_win(body_window);
 	delete_win(footer_window);
+	delete_win(footer_content_window);
 	endwin();
 	printf("\nTerminando modo NCURSES");
 }
@@ -70,35 +85,20 @@ int screen_ncurses_loop(t_screen_data* data)
 
 	wclear(body_window);
 	default_border(body_window);
-	mvwprintw(footer_window, 2, 5, "draw_fft");
 	draw_fft(body_window, data->fft, &band_array);
 	wrefresh(body_window);
 
-	wclear(footer_window);
-	default_border(footer_window);
+	int content_height, content_width;
+	getmaxyx(footer_content_window, content_height, content_width); // Es una macro, por eso funciona
 
-	// char line[300];
-	// char* result;
-	// char* result2;
+	char line[content_width];
 
-	// result = fgets(line, 300, audio_in->errors);
-	// result2 = fgets(line, 300, stdout);
-	// mvwprintw(footer_window, 2, 5, "stderr: %s", result);
-	// mvwprintw(footer_window, 3, 5, "stderr2: %s", result);
-	// if (feof(audio_in->stream)) {
-	// 	mvwprintw(footer_window, 2, 5, "Fin de stream");
-	// 	wrefresh(footer_window);
-	// 	clearerr(audio_in->stream);
-	// 	return 0;
-	// }
-	// if (ferror(audio_in->stream)) {
-	// 	mvwprintw(footer_window, 2, 5, "Error de stream");
-	// 	wrefresh(footer_window);
-	// 	clearerr(audio_in->stream);
-	// 	return 0;
-	// }
-
-	wrefresh(footer_window);
+	// Puedo hacer un while no bloqueante con fgets SOLAMENTE porque en la
+	// redirección de stderr se especifica O_NONBLOCK para el descriptor.
+	while(fgets(line, content_width, stderr_read)) {
+		wprintw(footer_content_window, "%s", line);
+	}
+	wrefresh(footer_content_window);
 
 	return 1;
 }
