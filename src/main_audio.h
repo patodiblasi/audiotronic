@@ -17,4 +17,8 @@ int audio_setup(t_audio_info* audio_info);
 int audio_loop(t_audio_info* audio_info);
 void audio_end(t_audio_info* audio_info);
 
+int open_audio(t_audio_info* audio_info);
+int read_audio(t_audio_info* audio_info);
+int check_stream(FILE* stream);
+
 #endif

@@ -19,6 +19,7 @@
 #include "log/src/log.h"
 
 #define SCREEN_MODE SCREEN_MODE_NCURSES
+#define LOG_LEVEL LOG_DEBUG
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
@@ -79,6 +80,8 @@ int main(void)
 	signal(SIGTERM, on_exit_signal);
 
 	print_separator();
+
+	log_set_level(LOG_LEVEL);
 
 	screen_set_mode(SCREEN_MODE);
 	if (!screen_start()) {

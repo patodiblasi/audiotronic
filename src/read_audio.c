@@ -156,9 +156,8 @@ void close_audio(t_stream* stream)
 	}
 }
 
-size_t read_audio(FILE* fp, t_wave* chunk, int desired_length)
+size_t read_audio(FILE* fp, t_wave* chunk, int samples_to_read)
 {
-	int samples_to_read = desired_length - chunk->length;
 	int16_t* read_buffer = &(chunk->samples[chunk->length]);
 
 	size_t read_length = fread(read_buffer, sizeof(int16_t), samples_to_read, fp);
