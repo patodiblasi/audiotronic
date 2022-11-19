@@ -1,4 +1,5 @@
 #include "main_audio.h"
+#include "log/src/log.h"
 
 #define MIN_FREQ 24
 #define MAX_FREQ 24576
@@ -17,14 +18,14 @@ int audio_setup(t_audio_info* audio_info)
 	// ya que el string no está en memoria que yo haya reservado.
 	tmp = getenv("AUDIOTRONIC_DRIVER");
 	if (!tmp) {
-		fprintf(stderr, "\nFalta la variable de entorno AUDIOTRONIC_DRIVER.\n");
+		log_error("Falta la variable de entorno AUDIOTRONIC_DRIVER.");
 		return 0;
 	}
 	strcpy(audio_driver, tmp);
 
 	tmp = getenv("AUDIOTRONIC_INPUT");
 	if (!tmp) {
-		fprintf(stderr, "\nFalta la variable de entorno AUDIOTRONIC_INPUT.\n");
+		log_error("Falta la variable de entorno AUDIOTRONIC_INPUT.");
 		return 0;
 	}
 	strcpy(audio_input_device, tmp);

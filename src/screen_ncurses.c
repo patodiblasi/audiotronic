@@ -3,6 +3,7 @@
 #include "screen_ncurses.h"
 #include "process_audio.h"
 #include "helpers.h"
+#include "log/src/log.h"
 
 WINDOW* header_window;
 WINDOW* body_window;
@@ -92,6 +93,8 @@ int screen_ncurses_loop(t_screen_data* data)
 	getmaxyx(footer_content_window, content_height, content_width); // Es una macro, por eso funciona
 
 	char line[content_width];
+
+	log_debug("SARASA");
 
 	// Puedo hacer un while no bloqueante con fgets SOLAMENTE porque en la
 	// redirección de stderr se especifica O_NONBLOCK para el descriptor.

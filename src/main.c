@@ -15,6 +15,7 @@
 #include "screen.h"
 #include "requests.h"
 #include "envs.h"
+#include "log/src/log.h"
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
@@ -71,7 +72,7 @@ int main(void)
 
 	if (!check_envs()) {
 		// No corto la ejecución
-		fprintf(stderr, "\nNo fue posible cargar todas las variables de entorno.");
+		log_error("No fue posible cargar todas las variables de entorno.");
 	}
 
 	init_requests();

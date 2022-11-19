@@ -1,23 +1,24 @@
 #include "screen_text.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "log/src/log.h"
 
 int screen_text_start()
 {
-	printf("\nIniciando modo TEXTO");
+	log_debug("Iniciando modo TEXTO");
 	return 1;
 }
 
 int screen_text_end()
 {
-	printf("\nTerminando modo TEXTO");
+	log_debug("Terminando modo TEXTO");
 	return 1;
 }
 
 int screen_text_loop(t_screen_data* data)
 {
-	// printf("\nLoop modo TEXTO");
-	print_wave_values(data->wave->samples, data->wave->length);
+	// log_debug("Loop modo TEXTO");
+	// print_wave_values(data->wave->samples, data->wave->length);
 	return 1;
 }
 
