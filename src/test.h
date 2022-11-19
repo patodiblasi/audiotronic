@@ -9,7 +9,7 @@ void test_bpf_average(t_audio_info* audio_info)
 		int min = f;
 		int max = f + 1000;
 
-		double avg = bpf_average(min, max, audio_info->fft.real, audio_info->chunk.length, (double)audio_info->config.min_sample_rate);
+		double avg = bpf_average(min, max, audio_info->fft.real, audio_info->chunk.length, (double)audio_info->parameters.min_sample_rate);
 
 		if (avg > max_avg) {
 			max_avg = avg;
@@ -35,6 +35,6 @@ void test_fft(t_audio_info* audio_info)
 			max_index = i;
 		}
 	}
-	double max_freq = fft_index_to_frequency(max_index, audio_info->chunk.length, audio_info->config.min_sample_rate);
+	double max_freq = fft_index_to_frequency(max_index, audio_info->chunk.length, audio_info->parameters.min_sample_rate);
 	printf("%d\t%f\n", max_index, max_freq);
 }

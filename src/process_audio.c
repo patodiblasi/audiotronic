@@ -10,7 +10,7 @@ int ceil_power_of_2(int x)
 	return 1 << (pow + 1);
 }
 
-audio_config new_audio_config(int min_freq, int max_freq)
+t_audio_parameters new_audio_parameters(int min_freq, int max_freq)
 {
 	// Para detectar una onda de 20 Hz necesito una muestra de al menos su duración.
 	// Una onda de 20 Hz dura: (1/20) seg = 0.05 seg
@@ -21,16 +21,16 @@ audio_config new_audio_config(int min_freq, int max_freq)
 	// De forma general, la cantidad mínima de samples requeridos es:
 	// min_fft_samples = sample_rate / min_freq
 
-	audio_config config;
-	config.min_freq = min_freq;
-	config.max_freq = max_freq;
-	config.min_sample_rate = max_freq * 2;
-	config.min_fft_samples = config.min_sample_rate / config.min_freq;
-	config.min_fft_duration_ms = 1000.0 / config.min_freq;
-	config.fft_samples = ceil_power_of_2(config.min_fft_samples);
-	config.fft_duration_ms = (config.fft_samples / config.min_freq) / 1000.0;
+	t_audio_parameters parameters;
+	parameters.min_freq = min_freq;
+	parameters.max_freq = max_freq;
+	parameters.min_sample_rate = max_freq * 2;
+	parameters.min_fft_samples = parameters.min_sample_rate / parameters.min_freq;
+	parameters.min_fft_duration_ms = 1000.0 / parameters.min_freq;
+	parameters.fft_samples = ceil_power_of_2(parameters.min_fft_samples);
+	parameters.fft_duration_ms = (parameters.fft_samples / parameters.min_freq) / 1000.0;
 
-	return config;
+	return parameters;
 }
 
 void signal_to_fft(t_fft* fft)
@@ -223,7 +223,7 @@ void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
 void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
 {
 	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 18) - 1;
+	double max_amplitude = pow(2, 19) - 1;
 
 	init_bands(fb_array, 20, 20000);
 

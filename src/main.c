@@ -14,12 +14,17 @@
 #include "main_audio.h"
 #include "screen.h"
 #include "requests.h"
+#include "config.h"
 #include "envs.h"
 #include "log/src/log.h"
+
+#define SCREEN_MODE SCREEN_MODE_NCURSES
+#define LOG_LEVEL LOG_DEBUG
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
 t_screen_data screen_data;
+t_audiotronic_config config;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -72,15 +77,23 @@ int main(void)
 
 	print_separator();
 
-	screen_set_mode(SCREEN_MODE_NCURSES);
+	log_set_level(LOG_LEVEL);
+
+	screen_set_mode(SCREEN_MODE);
 	if (!screen_start()) {
 		close();
 	}
 
 	if (!check_envs()) {
 		// No corto la ejecución
-		log_error("No fue posible cargar todas las variables de entorno.");
+		log_warn("No fue posible cargar todas las variables de entorno.");
 	}
+
+	if(!read_env_config(&config)) {
+		close();
+	}
+
+	audio_info.config = config;
 
 	init_requests();
 	turn_off();
@@ -96,7 +109,7 @@ int main(void)
 	long now;
 	long last_audio_time = 0;
 	long last_video_time = 0;
-	long audio_frame_duration = 1000 * audio_info.config.min_fft_duration_ms; // Aprox 1/20 = 50 ms
+	long audio_frame_duration = 1000 * audio_info.parameters.min_fft_duration_ms; // Aprox 1/20 = 50 ms
 	long video_frame_duration = (1000000 / 30); // 1/60 = 16,66 ms
 
 	int run_audio_frame = 1;

@@ -21,7 +21,7 @@ typedef struct {
 	double min_fft_duration_ms; // Duración mínima de cada ronda de muestreo para FFT
 	int fft_samples; // Cantidad de muestras para la FFT (potencia de 2)
 	double fft_duration_ms; // Duración de cada ronda de muestreo para FFT
-} audio_config;
+} t_audio_parameters;
 
 typedef struct {
 	double min; // Frecuencia de inicio de la banda
@@ -43,7 +43,7 @@ typedef struct {
 } t_fft;
 
 int ceil_power_of_2(int x);
-audio_config new_audio_config(int min_freq, int max_freq);
+t_audio_parameters new_audio_parameters(int min_freq, int max_freq);
 void signal_to_fft(t_fft* fft);
 double bpf_sum(double f_min, double f_max, t_fft* fft);
 double bpf_average(double f_min, double f_max, t_fft* fft);
