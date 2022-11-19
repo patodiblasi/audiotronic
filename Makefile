@@ -5,7 +5,7 @@ CC := g++
 # CFLAGS := -O3
 CFLAGS := -Wall -Wextra -g
 LIBS := -lm -lncurses -lcurl
-CONSTANTS := -D LOG_USE_COLOR -D USE_ARDUINO_FFT_MODULE=1 -D SHOW_FFMPEG_OUTPUT=1
+CONSTANTS := -D USE_ARDUINO_FFT_MODULE=1 -D SHOW_FFMPEG_OUTPUT=1
 
 SRC_DIR := src
 BUILD_DIR := build
@@ -63,7 +63,7 @@ $(BUILD_DIR)/arduinoFFT.o: $(SRC_DIR)/arduinoFFT/arduinoFFT.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/log.o: $(SRC_DIR)/log/src/log.c
-	$(CC) $(CFLAGS) $(CONSTANTS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/screen_sdl.o: $(SRC_DIR)/screen_sdl.c
 	$(CC) $(CFLAGS) -c $(CPLSDL) $< -o $@

@@ -5,6 +5,7 @@
 
 int screen_text_start()
 {
+	log_set_use_color(true);
 	log_debug("Iniciando modo TEXTO");
 	return 1;
 }
@@ -17,7 +18,7 @@ int screen_text_end()
 
 int screen_text_loop(t_screen_data* data)
 {
-	// log_debug("Loop modo TEXTO");
+	log_debug("Loop modo TEXTO");
 	// print_wave_values(data->wave->samples, data->wave->length);
 	return 1;
 }

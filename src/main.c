@@ -82,7 +82,7 @@ int main(void)
 		close();
 	}
 
-	screen_set_mode(SCREEN_MODE_NCURSES);
+	screen_set_mode(SCREEN_MODE_TEXT);
 	if (!screen_start()) {
 		close();
 	}

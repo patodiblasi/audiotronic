@@ -21,6 +21,10 @@ int screen_ncurses_start()
 	clear();
 	noecho();
 
+	// Lamentablemente, ncurses no puede manejar secuencias de escape ANSI, así
+	// que desactivo el color para que no se muestren esas secuencias
+	log_set_use_color(false);
+
 	// https://pubs.opengroup.org/onlinepubs/7908799/xcurses/can_change_color.html
 	start_color();
 
@@ -65,6 +69,7 @@ int screen_ncurses_end()
 	delete_win(footer_window);
 	delete_win(footer_content_window);
 	endwin();
+	log_set_use_color(true);
 	printf("\nTerminando modo NCURSES");
 }
 
