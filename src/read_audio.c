@@ -1,4 +1,5 @@
 #include "read_audio.h"
+#include <fcntl.h>
 
 // Ejecuta un comando en un nuevo proceso, y redirige los descriptores fds
 // hacia nuevos pipes, que posteriormente son retornados en el mismo array.
@@ -65,9 +66,32 @@ int multi_popen_fds(int fds[], int fds_length, char command[])
 	return 1;
 }
 
-t_stream open_audio_file(const char* filename)
+t_stream open_audio_stream(char* command)
 {
 	t_stream stream;
+
+	printf("\nAbriendo pipes SDTOUT y STDERR: %s\n", command);
+
+	int fds[] = { STDOUT_FILENO, STDERR_FILENO };
+
+	multi_popen_fds(fds, 2, command);
+
+	if (fcntl(fds[0], F_SETFL, O_NONBLOCK) < 0) {
+		fprintf(stderr, "\fcntl: No fue posible hacer pipe STDOUT no bloqueante.");
+	}
+
+	if (fcntl(fds[1], F_SETFL, O_NONBLOCK) < 0) {
+		fprintf(stderr, "\fcntl: No fue posible hacer pipe STDERR no bloqueante.");
+	}
+
+	stream.stream = fdopen(fds[0], "r");
+	stream.errors = fdopen(fds[1], "r");
+
+	return stream;
+}
+
+t_stream open_audio_file(const char* filename)
+{
 	char command[200] = "";
 	char command_format[100] = "ffmpeg";
 
@@ -78,23 +102,13 @@ t_stream open_audio_file(const char* filename)
 
 	sprintf(command, command_format, filename);
 
-	printf("\nAbriendo pipes SDTOUT y STDERR: %s\n", command);
-
-	int fds[] = { STDOUT_FILENO, STDERR_FILENO };
-
-	multi_popen_fds(fds, 2, command);
-
-	stream.stream = fdopen(fds[0], "r");
-	stream.errors = fdopen(fds[1], "r");
-
-	return stream;
+	return open_audio_stream(command);
 }
 
 t_stream open_audio_device(const char* device, const char* filename, int sample_rate)
 {
 	// Captura del mic Plantronics:
 	// ffmpeg -f alsa -sample_rate 44100 -i front:CARD=USB,DEV=0 -t 30 out.wav
-	t_stream stream;
 	char command[200] = "";
 	char command_format[100] = "ffmpeg";
 	char command_device_options[100] = "";
@@ -117,16 +131,7 @@ t_stream open_audio_device(const char* device, const char* filename, int sample_
 
 	sprintf(command, command_format, filename);
 
-	printf("\nAbriendo pipe: %s\n", command);
-
-	int fds[] = { STDOUT_FILENO, STDERR_FILENO };
-
-	multi_popen_fds(fds, 2, command);
-
-	stream.stream = fdopen(fds[0], "r");
-	stream.errors = fdopen(fds[1], "r");
-
-	return stream;
+	return open_audio_stream(command);
 }
 
 void close_audio(t_stream* stream)
