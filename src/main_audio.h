@@ -8,7 +8,7 @@ typedef struct {
 	t_wave chunk;
 	t_fft fft;
 	t_stream audio_in;
-	audio_config config;
+	t_audio_parameters parameters;
 } t_audio_info;
 
 int audio_setup(t_audio_info* audio_info);
