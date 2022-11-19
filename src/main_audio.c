@@ -4,31 +4,9 @@
 #define MIN_FREQ 21
 #define MAX_FREQ 22050
 
-// En Linux, para listar devices: arecord -L
-
 
 int audio_setup(t_audio_info* audio_info)
 {
-	char* tmp;
-	char audio_driver[100];
-	char audio_input_device[100];
-
-	// Copio porque el resultado de getenv puede ser sobrescrito, según la doc,
-	// ya que el string no está en memoria que yo haya reservado.
-	tmp = getenv("AUDIOTRONIC_DRIVER");
-	if (!tmp) {
-		log_error("Falta la variable de entorno AUDIOTRONIC_DRIVER.");
-		return 0;
-	}
-	strcpy(audio_driver, tmp);
-
-	tmp = getenv("AUDIOTRONIC_INPUT");
-	if (!tmp) {
-		log_error("Falta la variable de entorno AUDIOTRONIC_INPUT.");
-		return 0;
-	}
-	strcpy(audio_input_device, tmp);
-
 	audio_info->parameters = new_audio_parameters(MIN_FREQ, MAX_FREQ);
 
 	log_info("Leyendo de a %d samples a %d Hz (%.2f ms)",
@@ -37,8 +15,9 @@ int audio_setup(t_audio_info* audio_info)
 		audio_info->parameters.fft_duration_ms
 	);
 
+	// En Linux, para listar devices: arecord -L
 	// audio_info->audio_in = open_audio_file("audios/sweep_log.wav");
-	audio_info->audio_in = open_audio_device(audio_driver, audio_input_device, audio_info->parameters.min_sample_rate);
+	audio_info->audio_in = open_audio_device(audio_info->config.audio_driver, audio_info->config.audio_device, audio_info->parameters.min_sample_rate);
 
 	if (!audio_info->audio_in.stream) {
 		log_error("Error abriendo audio.");
