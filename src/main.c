@@ -52,11 +52,7 @@ void close()
 {
 	screen_end();
 	audio_end(&audio_info);
-	cleanup_requests();
-	turn_off();
-
 	print_separator();
-
 	exit(0);
 }
 
@@ -136,10 +132,10 @@ int main(void)
 			continue_loop = screen_loop(&screen_data);
 		}
 
-		if (frame_number % 50 == 0) {
-			turn_off();
-		} else {
+		if (frame_number % 10 == 0) {
 			turn_on();
+		} else {
+			turn_off();
 		}
 	}
 

@@ -7,6 +7,5 @@
 int init_requests();
 void turn_on();
 void turn_off();
-void cleanup_requests();
 
 #endif
