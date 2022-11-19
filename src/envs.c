@@ -10,7 +10,7 @@ int check_envs() {
 
 		// Make sure envar actually exists
 		if (!value) {
-			fprintf(stderr, "\nNo se encontró la variable de entorno %s.", envs[i]);
+			fprintf(stderr, "No se encontró la variable de entorno %s.\n", envs[i]);
 			return 0;
 		}
 	}

@@ -23,6 +23,13 @@ t_screen_data screen_data;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void print_separator()
+{
+	printf("\n====================================================================================================\n");
+	fflush(stdout);
+	fflush(stderr);
+}
+
 // Retorna tiempo en microsegundos desde algún punto desconocido
 long int get_utime()
 {
@@ -47,16 +54,15 @@ void close()
 	audio_end(&audio_info);
 	cleanup_requests();
 	turn_off();
-	printf("\n====================================================================================================\n");
-	fflush(stdout);
-	fflush(stderr);
+
+	print_separator();
 
 	exit(0);
 }
 
 void on_exit_signal(int s)
 {
-	printf("\nSe recibió señal de salida %d.\n", s);
+	log_warn("Se recibió señal de salida %d.", s);
 	close();
 }
 
@@ -68,7 +74,12 @@ int main(void)
 	signal(SIGTSTP, on_exit_signal);
 	signal(SIGTERM, on_exit_signal);
 
-	printf("\n====================================================================================================\n");
+	print_separator();
+
+	screen_set_mode(SCREEN_MODE_TEXT);
+	if (!screen_start()) {
+		close();
+	}
 
 	if (!check_envs()) {
 		// No corto la ejecución
@@ -79,11 +90,6 @@ int main(void)
 	turn_off();
 
 	if (!audio_setup(&audio_info)) {
-		close();
-	}
-
-	screen_set_mode(SCREEN_MODE_TEXT);
-	if (!screen_start()) {
 		close();
 	}
 
@@ -111,13 +117,11 @@ int main(void)
 		now = get_utime();
 		run_audio_frame = (now - last_audio_time) >= audio_frame_duration;
 		run_video_frame = (now - last_video_time) >= video_frame_duration;
-		// printf("\nframe %ld: %ld", frame_number, now);
+
 		if (run_audio_frame) {
-			// printf("\nframe %ld: %ld AUDIO", frame_number, now);
 			last_audio_time = now;
 		}
 		if (run_video_frame) {
-			// printf("\nframe %ld: %ld VIDEO", frame_number, now);
 			last_video_time = now;
 		}
 		////////////////////////////////////////////////////////////////////////

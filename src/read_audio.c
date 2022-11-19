@@ -35,7 +35,7 @@ int multi_popen_fds(int fds[], int fds_length, char command[])
 			// Redirijo los descriptores de escritura:
 			if (dup2(new_fds[i][1], fds[i]) == -1) {
 				// Error en el proceso hijo:
-				fprintf(stderr, "\nmulti_popen_fds: dup2: No fue posible redirigir los descriptores");
+				fprintf(stderr, "multi_popen_fds: dup2: No fue posible redirigir los descriptores\n");
 				exit(1);
 			}
 			// Cierro descriptores que ya no necesito (lectura y escritura):
@@ -70,18 +70,18 @@ t_stream open_audio_stream(char* command)
 {
 	t_stream stream;
 
-	printf("\nAbriendo pipes SDTOUT y STDERR: %s\n", command);
+	printf("Abriendo pipes SDTOUT y STDERR: %s\n", command);
 
 	int fds[] = { STDOUT_FILENO, STDERR_FILENO };
 
 	multi_popen_fds(fds, 2, command);
 
 	if (fcntl(fds[0], F_SETFL, O_NONBLOCK) < 0) {
-		fprintf(stderr, "\fcntl: No fue posible hacer pipe STDOUT no bloqueante.");
+		fprintf(stderr, "fcntl: No fue posible hacer pipe STDOUT no bloqueante.\n");
 	}
 
 	if (fcntl(fds[1], F_SETFL, O_NONBLOCK) < 0) {
-		fprintf(stderr, "\fcntl: No fue posible hacer pipe STDERR no bloqueante.");
+		fprintf(stderr, "fcntl: No fue posible hacer pipe STDERR no bloqueante.\n");
 	}
 
 	stream.stream = fdopen(fds[0], "r");
@@ -140,7 +140,7 @@ void close_audio(t_stream* stream)
 		return;
 	}
 
-	printf("\nCerrando stream\n");
+	printf("Cerrando stream\n");
 
 	if (stream->stream) {
 		fflush(stream->stream);

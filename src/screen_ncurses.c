@@ -14,7 +14,7 @@ FILE* stderr_read;
 
 int screen_ncurses_start()
 {
-	printf("\nIniciando modo NCURSES");
+	log_info("Iniciando modo NCURSES");
 
 	initscr();
 	curs_set(0);
@@ -70,7 +70,7 @@ int screen_ncurses_end()
 	delete_win(footer_content_window);
 	endwin();
 	log_set_use_color(true);
-	printf("\nTerminando modo NCURSES");
+	log_info("Terminando modo NCURSES");
 }
 
 int screen_ncurses_loop(t_screen_data* data)

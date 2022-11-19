@@ -21,17 +21,17 @@ FILE* redirect_stderr()
 	int p[2];
 
 	if (pipe(p) != 0) {
-		fprintf(stderr, "\npipe: No fue posible redirigir stderr.");
+		fprintf(stderr, "pipe: No fue posible redirigir stderr.\n");
 		return NULL;
 	}
 
 	if (fcntl(p[0], F_SETFL, O_NONBLOCK) < 0) {
-		fprintf(stderr, "\fcntl: No fue posible redirigir stderr.");
+		fprintf(stderr, "fcntl: No fue posible redirigir stderr.\n");
 		return NULL;
 	}
 
 	if (dup2(p[1], STDERR_FILENO) == -1) {
-		fprintf(stderr, "\ndup2: No fue posible redirigir stderr.");
+		fprintf(stderr, "dup2: No fue posible redirigir stderr.\n");
 		return NULL;
 	}
 
@@ -39,7 +39,7 @@ FILE* redirect_stderr()
 	if (!redirected) {
 		// Vuelvo a dejar todo como estaba:
 		dup2(STDERR_FILENO, p[1]);
-		fprintf(stderr, "\nfdopen: No fue posible redirigir stderr.");
+		fprintf(stderr, "fdopen: No fue posible redirigir stderr.\n");
 		return NULL;
 	}
 

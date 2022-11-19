@@ -32,7 +32,7 @@ int audio_setup(t_audio_info* audio_info)
 
 	audio_info->config = new_audio_config(MIN_FREQ, MAX_FREQ);
 
-	printf("\nLeyendo de a %d samples a %d Hz (%.2f ms)",
+	log_info("Leyendo de a %d samples a %d Hz (%.2f ms)",
 		audio_info->config.min_samples,
 		audio_info->config.min_sample_rate,
 		audio_info->config.min_samples_duration_ms
@@ -42,7 +42,7 @@ int audio_setup(t_audio_info* audio_info)
 	audio_info->audio_in = open_audio_device(audio_driver, audio_input_device, audio_info->config.min_sample_rate);
 
 	if (!audio_info->audio_in.stream) {
-		fprintf(stderr, "\nError abriendo audio.\n");
+		log_error("Error abriendo audio.");
 		return 0;
 	}
 
@@ -64,17 +64,17 @@ int audio_loop(t_audio_info* audio_info)
 
 	if (feof(audio_info->audio_in.stream)) {
 		fflush(stdout);
-		fprintf(stderr, "\nFin de stream");
+		log_error("Fin de stream");
 		is_stream_ok = 0;
 	}
 	if (ferror(audio_info->audio_in.stream)) {
 		fflush(stdout);
-		fprintf(stderr, "\nError de stream");
+		log_error("Error de stream");
 		is_stream_ok = 0;
 	}
 	if (!is_power_of_2(audio_info->chunk.length)) {
 		fflush(stdout);
-		fprintf(stderr, "\nEl segmento del stream no es potencia de 2");
+		log_error("El segmento del stream no es potencia de 2");
 		is_stream_ok = 0;
 	}
 

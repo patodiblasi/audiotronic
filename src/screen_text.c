@@ -6,13 +6,13 @@
 int screen_text_start()
 {
 	log_set_use_color(true);
-	log_debug("Iniciando modo TEXTO");
+	log_info("Iniciando modo TEXTO");
 	return 1;
 }
 
 int screen_text_end()
 {
-	log_debug("Terminando modo TEXTO");
+	log_info("Terminando modo TEXTO");
 	return 1;
 }
 
@@ -79,10 +79,10 @@ void draw_wave(int16_t* samples, int length, int samples_per_line, double multip
 void print_wave_values(int16_t* samples, int length)
 {
 	if (length == 0) {
-		printf("\n0 samples");
+		printf("0 samples\n");
 		return;
 	}
 	for (int i = 0; i < length; i++) {
-		printf("\n%d\t%d", i, (short int)samples[i]);
+		printf("%d\t%d\n", i, (short int)samples[i]);
 	}
 }

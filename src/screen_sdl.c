@@ -2,11 +2,11 @@
 #include <string>
 #include <cmath>
 #include "screen_sdl.h"
-
+#include "log/src/log.h"
 
 int screen_sdl_start()
 {
-	printf("\nIniciando modo SDL");
+	log_info("Iniciando modo SDL");
 
 	sdl_screen screen = start_screen(800, 600);
 	if (!screen.is_ok) {
@@ -18,13 +18,13 @@ int screen_sdl_start()
 
 int screen_sdl_end()
 {
-	printf("\nTerminando modo SDL");
+	log_info("Terminando modo SDL");
 	return 1;
 }
 
 int screen_sdl_loop(t_screen_data* data)
 {
-	printf("\nLoop modo SDL");
+	log_info("Loop modo SDL");
 	return 1;
 }
 
@@ -36,34 +36,34 @@ sdl_screen create_screen(int width, int height)
 	screen.is_ok = true;
 
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-		fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
+		log_error("SDL_Init: %s", SDL_GetError());
 		screen.is_ok = false;
 		return screen;
 	}
 
 	// Set texture filtering to linear
 	if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
-		fprintf(stderr, "SDL_SetHint: %s\n", SDL_GetError());
+		log_error("SDL_SetHint: %s", SDL_GetError());
 	}
 
 	// Create window
 	screen.window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen.width, screen.height, SDL_WINDOW_SHOWN);
 	if(screen.window == NULL) {
-		fprintf(stderr, "SDL_Window: %s\n", SDL_GetError());
+		log_error("SDL_Window: %s", SDL_GetError());
 		screen.is_ok = false;
 		return screen;
 	}
 
 	screen.renderer = SDL_CreateRenderer(screen.window, -1, SDL_RENDERER_ACCELERATED);
 	if(screen.renderer == NULL) {
-		fprintf(stderr, "SDL_Renderer: %s\n", SDL_GetError());
+		log_error("SDL_Renderer: %s", SDL_GetError());
 		screen.is_ok = false;
 		return screen;
 	}
 
 	screen.surface = SDL_GetWindowSurface(screen.window);
 	if(screen.renderer == NULL) {
-		fprintf(stderr, "SDL_GetWindowSurface: %s\n", SDL_GetError());
+		log_error("SDL_GetWindowSurface: %s", SDL_GetError());
 		screen.is_ok = false;
 		return screen;
 	}
@@ -74,7 +74,7 @@ sdl_screen create_screen(int width, int height)
 	//Initialize PNG loading
 	int imgFlags = IMG_INIT_PNG;
 	if(!(IMG_Init(imgFlags) & imgFlags)) {
-		fprintf(stderr, "IMG_Init: %s\n", IMG_GetError());
+		log_error("IMG_Init: %s", IMG_GetError());
 		screen.is_ok = false;
 		return screen;
 	}
@@ -103,14 +103,14 @@ SDL_Surface* load_surface(sdl_screen screen, std::string path)
 	//Load image at specified path
 	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
 	if(loadedSurface == NULL) {
-		fprintf(stderr, "IMG_Load: %s\n", path.c_str(), IMG_GetError());
+		log_error("IMG_Load: %s", path.c_str(), IMG_GetError());
 		return NULL;
 	}
 
 	//Convert surface to screen format
 	SDL_Surface* optimizedSurface = SDL_ConvertSurface(loadedSurface, screen.surface->format, 0);
 	if(optimizedSurface == NULL) {
-		fprintf(stderr, "SDL_ConvertSurface: %s\n", path.c_str(), SDL_GetError());
+		log_error("SDL_ConvertSurface: %s", path.c_str(), SDL_GetError());
 		return NULL;
 	}
 
@@ -125,7 +125,7 @@ int load_screen(sdl_screen screen)
 	// Logo
 	screen.logo = load_surface(screen, "logo.png");
 	if(screen.logo == NULL) {
-		fprintf(stderr, "No se pudo cargar el logo\n");
+		log_error("No se pudo cargar el logo");
 		return false;
 	}
 
@@ -152,7 +152,7 @@ bool screen_frame(sdl_screen screen, int16_t* signal, int signal_length, double*
 	}
 
 	avg = avg / (double)signal_length;
-	printf("\nAVG: %f", avg);
+	log_debug("AVG: %f", avg);
 
 	//Clear screen
 	SDL_SetRenderDrawColor(screen.renderer, 0x00, 0x00, 0x00, 0xFF);
