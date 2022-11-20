@@ -17,8 +17,9 @@
 #include "config.h"
 #include "envs.h"
 #include "log/src/log.h"
+#include "aparatito.h"
 
-#define SCREEN_MODE SCREEN_MODE_NCURSES
+#define SCREEN_MODE SCREEN_MODE_TEXT
 #define LOG_LEVEL LOG_DEBUG
 
 struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
@@ -109,11 +110,14 @@ int main(void)
 	long now;
 	long last_audio_time = 0;
 	long last_video_time = 0;
+	long last_request_time = 0;
 	long audio_frame_duration = 1000 * audio_info.parameters.min_fft_duration_ms; // Aprox 1/20 = 50 ms
 	long video_frame_duration = (1000000 / 30); // 1/60 = 16,66 ms
+	long request_frame_duration = (1000000 / 30);
 
 	int run_audio_frame = 1;
 	int run_video_frame = 1;
+	int run_request_frame = 1;
 	int continue_loop = 1;
 
 	long frame_number = 0;
@@ -126,11 +130,15 @@ int main(void)
 		now = get_utime();
 		run_audio_frame = (now - last_audio_time) >= audio_frame_duration;
 		run_video_frame = (now - last_video_time) >= video_frame_duration;
+		run_request_frame = (now - last_request_time) >= request_frame_duration;
 
 		if (run_audio_frame) {
 			last_audio_time = now;
 		}
 		if (run_video_frame) {
+			last_video_time = now;
+		}
+		if (run_request_frame) {
 			last_video_time = now;
 		}
 		////////////////////////////////////////////////////////////////////////
@@ -145,10 +153,8 @@ int main(void)
 			continue_loop = screen_loop(&screen_data);
 		}
 
-		if (frame_number % 10 == 0) {
-			turn_on();
-		} else {
-			turn_off();
+		if (run_request_frame && continue_loop) { 
+    	continue_loop = run_aparatito_frame(&audio_info.fft);
 		}
 	}
 
