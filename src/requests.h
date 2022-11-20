@@ -7,5 +7,7 @@
 int init_requests();
 void turn_on();
 void turn_off();
+void get_server_variables();
+void perform_requests();
 
 #endif
