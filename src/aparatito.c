@@ -2,8 +2,8 @@
 
 int is_on = 0;
 
-int run_aparatito_frame(t_fft* fft) {
-   if (is_kick(fft)) {
+int run_aparatito_frame(t_fft* fft, t_drop_params* config) {
+   if (is_kick(fft, config)) {
       if (is_on == 0) {
          turn_on();
          is_on = 1;
@@ -20,6 +20,5 @@ int run_aparatito_frame(t_fft* fft) {
 
 
 void get_aparatito_variables(t_drop_params* config) {
-   // hacer GET al servidor, responde con valores
-   // mapear valores a struct
+   get_server_variables(config);
 }

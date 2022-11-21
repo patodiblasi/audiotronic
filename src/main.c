@@ -26,6 +26,7 @@ struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
 t_screen_data screen_data;
 t_audiotronic_config config;
+t_drop_params drop_params;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -154,7 +155,10 @@ int main(void)
 		}
 
 		if (run_request_frame && continue_loop) { 
-    	continue_loop = run_aparatito_frame(&audio_info.fft);
+       	continue_loop = run_aparatito_frame(&audio_info.fft, &drop_params);
+			if (frame_number % 1000000 == 0) {
+            get_aparatito_variables(&drop_params);
+			}
 		}
 	}
 
