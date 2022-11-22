@@ -13,11 +13,8 @@ int is_kick(t_fft* fft, t_drop_params* config) {
 		value_cropped = val;
 	}
 
-   /* char str[100];
-   sprintf(str, "%f", value_cropped);
-   log_info(str); */
-
-   if (value_cropped > config->threshold / 1024) {
+   float threshold = config->threshold / 1024.0f;
+   if (value_cropped > threshold) {
       return 1;
    }
    return 0;
