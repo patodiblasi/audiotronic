@@ -1,15 +1,15 @@
 #include "recognition_audio.h"
-#include "log/src/log.h"
 
-static double compute_band_value(t_fft* fft, t_drop_params* config)
+double compute_band_value(t_fft* fft, t_drop_params* config)
 {
-   double max_amplitude = pow(2, 18) - 1;
+   double max_amplitude =  (1 << 18) - 1;
 	double val = bpf_average(config->min_freq, config->max_freq, fft) / max_amplitude;
    double value_cropped;
-   if (val> 1) {
-		value_cropped = 1;
+
+   if (val > 1) {
+		value_cropped = 1.0;
 	} else if (val< 0) {
-		value_cropped = 0;
+		value_cropped = 0.0;
 	} else {
 		value_cropped = val;
 	}
@@ -19,7 +19,7 @@ static double compute_band_value(t_fft* fft, t_drop_params* config)
 int is_kick(t_fft* fft, t_drop_params* config)
 {
    double band_value = compute_band_value(fft, config);
-   float threshold = config->threshold / 1024.0f;
+   double threshold = config->threshold / 1024.0;
 
    if (band_value >= threshold) {
       return 1;
@@ -60,7 +60,7 @@ int is_drop(t_fft* fft, t_drop_params* config)
    } else if (countdown > 0) {
       sprintf(msg, "Entrando en bajada mode en %is", countdown);
    } else {
-      sprintf(msg, "Bajada mode...Esperando drop entre %i-%i Hz, mayor a %.f%%", config->min_freq, config->max_freq, config->threshold / 1024.0f * 100);
+      sprintf(msg, "Bajada mode...Esperando drop entre %i-%i Hz, mayor a %.f porciento", config->min_freq, config->max_freq, config->threshold / 1024.0f * 100);
    }
    log_info(msg);
    
