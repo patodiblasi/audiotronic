@@ -46,8 +46,13 @@ int ceil_power_of_2(int x);
 t_audio_parameters new_audio_parameters(int min_freq, int max_freq);
 void signal_to_fft(t_fft* fft);
 void adjust_fft_scale(t_fft* fft);
+
 double bpf_sum(double f_min, double f_max, t_fft* fft);
 double bpf_average(double f_min, double f_max, t_fft* fft);
+double bpf_sum_pow(double f_min, double f_max, t_fft* fft);
+double bpf_rms(double f_min, double f_max, t_fft* fft);
+double bpf_max(double f_min, double f_max, t_fft* fft);
+
 double fft_bin_bandwidth(int fft_length, double fft_sample_rate);
 double fft_index_to_frequency(int fft_index, int fft_length, double fft_sample_rate);
 double frequency_to_fft_index(double frequency, int fft_length, double fft_sample_rate);

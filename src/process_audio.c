@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "process_audio.h"
 
+// Debería ser 16, pero lo bajo para que sea más sensible
+#define FFT_MAGNITUDE_MAX_DIGITS 10
+
 int ceil_power_of_2(int x)
 {
 	// Posiblemente el compilador optimice log2, por lo que es mejor calcular
@@ -182,6 +185,130 @@ double bpf_average(double f_min, double f_max, t_fft* fft)
 	return sum / (p_max - p_min);
 }
 
+// Suma los bins entre 2 frecuencias (de manera fraccionaria si no son enteros),
+// elevando al cuadrado cada uno de los valores
+double bpf_sum_pow(double f_min, double f_max, t_fft* fft)
+{
+	double p_min = frequency_to_fft_index(f_min, fft->length, fft->sample_rate);
+	double p_max = frequency_to_fft_index(f_max, fft->length, fft->sample_rate);
+	int i_min = ceil(p_min);
+	int i_max = floor(p_max);
+
+	// Para prevenir imprecisiones por redondeo:
+	if (p_min > i_min) p_min = i_min;
+	if (p_max < i_max) p_max = i_max;
+
+	if (p_max == p_min) return 0;
+
+	double sum = 0;
+
+	// Si p_max - p_min < 1 ==> i_min > i_max
+	// Para no sumar 2 veces ese segmento, valido que no se crucen
+	if (i_min < i_max) {
+		if (i_min >= 1) {
+			// Sumo parte fraccionaria del inicio, ponderada:
+			sum += pow(((double)i_min - p_min) * fft->real[i_min - 1], 2);
+		}
+
+		if (i_max < fft->length) {
+			// Sumo parte fraccionaria del final, ponderada:
+			sum += pow((p_max - (double)i_max) * fft->real[i_max], 2);
+		}
+
+		// Sumo partes enteras:
+		for (int i = i_min; i < i_max; i++) {
+			sum += pow(fft->real[i], 2);
+		}
+	} else if (i_max < fft->length) {
+		// p_max - p_min < 1
+		// Sumo un solo elemento, sacando los márgenes:
+		sum += pow(((double)p_max - p_min) * fft->real[i_max], 2);
+	}
+
+	return sum;
+}
+
+double bpf_rms(double f_min, double f_max, t_fft* fft)
+{
+	double p_min = frequency_to_fft_index(f_min, fft->length, fft->sample_rate);
+	double p_max = frequency_to_fft_index(f_max, fft->length, fft->sample_rate);
+	int i_min = ceil(p_min);
+	int i_max = floor(p_max);
+
+	// Para prevenir imprecisiones por redondeo:
+	if (p_min > i_min) p_min = i_min;
+	if (p_max < i_max) p_max = i_max;
+
+	if (p_max == p_min) return 0;
+
+	double sum = bpf_sum_pow(f_min, f_max, fft);
+
+	// https://es.wikipedia.org/wiki/Media_cuadr%C3%A1tica
+	// RMS:
+	return sqrt(sum / (p_max - p_min));
+}
+
+
+double bpf_max(double f_min, double f_max, t_fft* fft)
+{
+	double p_min = frequency_to_fft_index(f_min, fft->length, fft->sample_rate);
+	double p_max = frequency_to_fft_index(f_max, fft->length, fft->sample_rate);
+	int i_min = ceil(p_min);
+	int i_max = floor(p_max);
+
+	// Para prevenir imprecisiones por redondeo:
+	if (p_min > i_min) p_min = i_min;
+	if (p_max < i_max) p_max = i_max;
+
+	if (p_max == p_min) return 0;
+
+	double x = 0;
+	double max = 0;
+	double sum = 0;
+
+	// Si p_max - p_min < 1 ==> i_min > i_max
+	// Para no sumar 2 veces ese segmento, valido que no se crucen
+	if (i_min < i_max) {
+		if (i_min >= 1) {
+			// Sumo parte fraccionaria del inicio, ponderada:
+			x = ((double)i_min - p_min) * fft->real[i_min - 1];
+			if (x > max) {
+				max = x;
+			}
+			sum += x;
+		}
+
+		if (i_max < fft->length) {
+			// Sumo parte fraccionaria del final, ponderada:
+			x = (p_max - (double)i_max) * fft->real[i_max];
+			if (x > max) {
+				max = x;
+			}
+			sum += x;
+		}
+
+		// Sumo partes enteras:
+		for (int i = i_min; i < i_max; i++) {
+			x = fft->real[i];
+			if (x > max) {
+				max = x;
+			}
+			sum += x;
+		}
+	} else if (i_max < fft->length) {
+		// p_max - p_min < 1
+		// Sumo un solo elemento, sacando los márgenes:
+		x = ((double)p_max - p_min) * fft->real[i_max];
+		if (x > max) {
+			max = x;
+		}
+		sum += x;
+	}
+
+	// Probando con sweep y mic llegué a estos valores fruta para la ponderación:
+	return max * 0.97 + sum * 0.03;
+}
+
 // Calcula las frecuencias en donde empiezan las bandas, de forma tal que la
 // relación musical entre las mismas sea igual de una banda a la siguiente.
 void init_bands_log(t_frequency_band_array* fb_array, double f_min, double f_max)
@@ -245,13 +372,12 @@ void init_bands_linear(t_frequency_band_array* fb_array, double f_min, double f_
 // valores fuera de escala (no se verifica límite).
 void fft_to_bands_log(t_fft* fft, t_frequency_band_array* fb_array)
 {
-	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 25) - 1;
+	double max_amplitude = (1 << FFT_MAGNITUDE_MAX_DIGITS) - 1;
 
 	init_bands_log(fb_array, 20, 20000);
 
 	for (int i = 0; i < fb_array->length; i++) {
-		fb_array->values[i].value = bpf_sum(
+		fb_array->values[i].value = bpf_max(
 			fb_array->values[i].min,
 			fb_array->values[i].max,
 			fft
@@ -261,13 +387,12 @@ void fft_to_bands_log(t_fft* fft, t_frequency_band_array* fb_array)
 
 void fft_to_bands_linear(t_fft* fft, t_frequency_band_array* fb_array)
 {
-	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = (1 << 15) - 1;
+	double max_amplitude = (1 << FFT_MAGNITUDE_MAX_DIGITS) - 1;
 
-	init_bands_linear(fb_array, 40, 1040);
+	init_bands_linear(fb_array, 20, 20000);
 
 	for (int i = 0; i < fb_array->length; i++) {
-		fb_array->values[i].value = bpf_sum(
+		fb_array->values[i].value = bpf_max(
 			fb_array->values[i].min,
 			fb_array->values[i].max,
 			fft

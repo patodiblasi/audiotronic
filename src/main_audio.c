@@ -64,7 +64,9 @@ int open_audio(t_audio_info* audio_info)
 	errno = 0;
 
 	// En Linux, para listar devices: arecord -L
-	// audio_info->audio_in = open_audio_file("audios/sweep_log.wav");
+	// audio_info->audio_in = open_audio_file("audios/sweep_linear_10s.wav");
+	// audio_info->audio_in = open_audio_file("audios/sweep_log_10s.wav");
+	// audio_info->audio_in = open_audio_file("audios/440_1-1.wav");
 	audio_info->audio_in = open_audio_device(audio_info->config.audio_driver, audio_info->config.audio_device, audio_info->parameters.min_sample_rate);
 
 	return check_stream(audio_info->audio_in.stream);
