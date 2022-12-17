@@ -57,7 +57,7 @@ all: setup $(ALL_OBJ_PATH) $(AUDIOTRONIC_EXE_PATH)
 # Objetos:
 
 $(AUDIOTRONIC_EXE_PATH): $(ALL_OBJ_PATH) $(MAIN_PATH)
-	$(CC) $(CFLAGS) $(LIBS) $(CPLSDL) $(LIBSDL) $(ALL_OBJ_PATH) $(CONSTANTS) $(MAIN_PATH) -g -o $@
+	$(CC) $(CFLAGS) $(ALL_OBJ_PATH) $(CONSTANTS) $(MAIN_PATH) -g -o $@ $(LIBS) $(CPLSDL) $(LIBSDL)
 
 $(BUILD_DIR)/arduinoFFT.o: $(SRC_DIR)/arduinoFFT/arduinoFFT.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
