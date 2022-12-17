@@ -184,7 +184,7 @@ double bpf_average(double f_min, double f_max, t_fft* fft)
 
 // Calcula las frecuencias en donde empiezan las bandas, de forma tal que la
 // relación musical entre las mismas sea igual de una banda a la siguiente.
-void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
+void init_bands_log(t_frequency_band_array* fb_array, double f_min, double f_max)
 {
 	// El oído no percibe linealmente las frecuencias (por ejemplo, una octava es
 	// el doble de frecuencia).
@@ -226,17 +226,32 @@ void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max)
 	fb_array->values[fb_array->length-1].max = f_max;
 }
 
+void init_bands_linear(t_frequency_band_array* fb_array, double f_min, double f_max)
+{
+	double band_width = (f_max - f_min) / fb_array->length;
+
+	fb_array->values[0].min = f_min;
+	for (int x = 1; x < fb_array->length; x++) {
+		double f = x * band_width + f_min;
+		fb_array->values[x-1].max = f;
+		fb_array->values[x].min = f;
+
+		fb_array->values[x-1].center = (fb_array->values[x-1].max + fb_array->values[x-1].min) / 2;
+	}
+	fb_array->values[fb_array->length-1].max = f_max;
+}
+
 // Los valores de las bandas son normalizados de 0 a 1, pero pueden existir
 // valores fuera de escala (no se verifica límite).
-void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
+void fft_to_bands_log(t_fft* fft, t_frequency_band_array* fb_array)
 {
 	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
-	double max_amplitude = pow(2, 19) - 1;
+	double max_amplitude = pow(2, 25) - 1;
 
-	init_bands(fb_array, 20, 20000);
+	init_bands_log(fb_array, 20, 20000);
 
 	for (int i = 0; i < fb_array->length; i++) {
-		fb_array->values[i].value = bpf_average(
+		fb_array->values[i].value = bpf_sum(
 			fb_array->values[i].min,
 			fb_array->values[i].max,
 			fft
@@ -244,3 +259,18 @@ void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array)
 	}
 }
 
+void fft_to_bands_linear(t_fft* fft, t_frequency_band_array* fb_array)
+{
+	// Con 24 llega justo al tope, pero los agudos son muy débiles... Revisar
+	double max_amplitude = (1 << 15) - 1;
+
+	init_bands_linear(fb_array, 40, 1040);
+
+	for (int i = 0; i < fb_array->length; i++) {
+		fb_array->values[i].value = bpf_sum(
+			fb_array->values[i].min,
+			fb_array->values[i].max,
+			fft
+		) / max_amplitude;
+	}
+}

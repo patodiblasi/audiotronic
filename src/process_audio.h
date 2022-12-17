@@ -51,7 +51,9 @@ double bpf_average(double f_min, double f_max, t_fft* fft);
 double fft_bin_bandwidth(int fft_length, double fft_sample_rate);
 double fft_index_to_frequency(int fft_index, int fft_length, double fft_sample_rate);
 double frequency_to_fft_index(double frequency, int fft_length, double fft_sample_rate);
-void init_bands(t_frequency_band_array* fb_array, double f_min, double f_max);
-void fft_to_bands(t_fft* fft, t_frequency_band_array* fb_array);
+void init_bands_log(t_frequency_band_array* fb_array, double f_min, double f_max);
+void init_bands_linear(t_frequency_band_array* fb_array, double f_min, double f_max);
+void fft_to_bands_log(t_fft* fft, t_frequency_band_array* fb_array);
+void fft_to_bands_linear(t_fft* fft, t_frequency_band_array* fb_array);
 
 #endif

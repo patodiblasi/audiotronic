@@ -160,7 +160,7 @@ void draw_fft(WINDOW* win, t_fft* fft, t_frequency_band_array* band_array)
 	int band_containter_width = 6;
 	int margin_left = 5;
 
-	fft_to_bands(fft, band_array);
+	fft_to_bands_linear(fft, band_array);
 
 	for (int i = 1; i <= band_array->length; i++) {
 		int is_cropped = 0;
