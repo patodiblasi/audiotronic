@@ -49,7 +49,7 @@ run:
 	./$(AUDIOTRONIC_EXE_PATH)
 
 debug:
-	gdb $(AUDIOTRONIC_EXE_PATH)
+	gdb -p $(shell ps -C $(AUDIOTRONIC_EXE) -o pid --no-headers | head -n 1)
 
 all: setup $(ALL_OBJ_PATH) $(AUDIOTRONIC_EXE_PATH)
 
@@ -71,8 +71,8 @@ $(BUILD_DIR)/screen_sdl.o: $(SRC_DIR)/screen_sdl.c
 $(BUILD_DIR)/screen.o: $(SRC_DIR)/screen.c
 	$(CC) $(CFLAGS) -c $(CPLSDL) $< -o $@
 
+
 .SECONDEXPANSION:
 
 $(IMPLICIT_TARGETS): %.o: $$(addprefix $(SRC_DIR)/, $$(notdir %.c))
 	$(CC) $(CFLAGS) $(CONSTANTS) -c $< -o $@
-
