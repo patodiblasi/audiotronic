@@ -19,6 +19,6 @@ void rearrange(double data_re[], double data_im[], const unsigned int N);
 // the heavy lifting of computation
 void compute(double data_re[], double data_im[], const unsigned int N);
 
-void fft_amplitude_to_magnitude(double *fft_real, int fft_length);
+void fft_amplitude_to_magnitude(double *fft_real, double *fft_imaginary, int fft_length);
 
 #endif

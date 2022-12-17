@@ -48,10 +48,18 @@ void signal_to_fft(t_fft* fft)
 	#else
 		// Con fft.c:
 		fft_compute(fft->real, fft->imaginary, (unsigned int)fft->length);
-
-		// Hago absolutos todos los valores:
-		fft_amplitude_to_magnitude(fft->real, fft->length);
+		fft_amplitude_to_magnitude(fft->real, fft->imaginary, fft->length);
 	#endif
+
+	adjust_fft_scale(fft);
+}
+
+// Setea la escala en que se expresan los valores de FFT en la misma escala de la onda de origen
+void adjust_fft_scale(t_fft* fft)
+{
+	for (int i=0; i < fft->length; i++) {
+		fft->real[i] = 2.0 * fft->real[i] / (double)fft->length;
+	}
 }
 
 double fft_bin_bandwidth(int fft_length, double fft_sample_rate)

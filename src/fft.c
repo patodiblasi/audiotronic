@@ -13,6 +13,7 @@ void rearrange(double data_re[], double data_im[], const unsigned int N)
 	for(unsigned int position=0; position<N;position++)
 	{
 		if(target>position) {
+			// Swap target y position
 			const double temp_re = data_re[target];
 			const double temp_im = data_im[target];
 			data_re[target] = data_re[position];
@@ -66,13 +67,11 @@ void compute(double data_re[], double data_im[], const unsigned int N)
 	}
 }
 
-// Convierte todos los valores a positivos
-void fft_amplitude_to_magnitude(double *fft_real, int fft_length)
+void fft_amplitude_to_magnitude(double *fft_real, double *fft_imaginary, int fft_length)
 {
 	for (int i=0; i < fft_length; i++) {
-		if (fft_real[i] < 0) {
-			fft_real[i] *= -1;
-		}
+		// Básicamente, estaría calculando la hipotenusa
+		fft_real[i] = sqrt(fft_real[i] * fft_real[i] + fft_imaginary[i] * fft_imaginary[i]);
 	}
 }
 
