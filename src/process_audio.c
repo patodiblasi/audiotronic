@@ -42,7 +42,7 @@ void signal_to_fft(t_fft* fft)
 		// Compute FFT
 		// DCRemoval genera más ruido del que elimina... Overflow?
 		// fftInstance.DCRemoval();
-		fftInstance.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+		// fftInstance.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
 		fftInstance.Compute(FFT_FORWARD);
 		fftInstance.ComplexToMagnitude();
 	#else
