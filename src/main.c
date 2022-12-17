@@ -17,6 +17,7 @@
 #include "config.h"
 #include "envs.h"
 #include "log/src/log.h"
+#include "aparatito.h"
 
 #define SCREEN_MODE SCREEN_MODE_NCURSES
 #define LOG_LEVEL LOG_DEBUG
@@ -25,6 +26,7 @@ struct timespec start_time = { -1, 0 }; // tv_sec, tv_nsec
 t_audio_info audio_info;
 t_screen_data screen_data;
 t_audiotronic_config config;
+t_drop_params drop_params;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,11 +59,7 @@ void close()
 {
 	screen_end();
 	audio_end(&audio_info);
-	cleanup_requests();
-	turn_off();
-
 	print_separator();
-
 	exit(0);
 }
 
@@ -100,6 +98,7 @@ int main(void)
 	audio_info.config = config;
 
 	init_requests();
+   get_aparatito_variables(&drop_params);
 	turn_off();
 
 	if (!audio_setup(&audio_info)) {
@@ -113,11 +112,14 @@ int main(void)
 	long now;
 	long last_audio_time = 0;
 	long last_video_time = 0;
+	// long last_request_time = 0;
 	long audio_frame_duration = 1000 * audio_info.parameters.min_fft_duration_ms; // Aprox 1/20 = 50 ms
 	long video_frame_duration = (1000000 / 30); // 1/60 = 16,66 ms
+	// long request_frame_duration = (1000000 / 30);
 
 	int run_audio_frame = 1;
 	int run_video_frame = 1;
+	// int run_request_frame = 1;
 	int continue_loop = 1;
 
 	long frame_number = 0;
@@ -130,6 +132,7 @@ int main(void)
 		now = get_utime();
 		run_audio_frame = (now - last_audio_time) >= audio_frame_duration;
 		run_video_frame = (now - last_video_time) >= video_frame_duration;
+		// run_request_frame = (now - last_request_time) >= request_frame_duration;
 
 		if (run_audio_frame) {
 			last_audio_time = now;
@@ -137,9 +140,16 @@ int main(void)
 		if (run_video_frame) {
 			last_video_time = now;
 		}
+		// if (run_request_frame) {
+		// 	last_video_time = now;
+		// }
 		////////////////////////////////////////////////////////////////////////
 		if (run_audio_frame && continue_loop) {
 			continue_loop = audio_loop(&audio_info);
+         run_aparatito_frame(&audio_info.fft, &drop_params);
+			if ((frame_number / 1000000) % 500 <= 1) {  // Forma rustica de limitar el tiempo de llamada
+            get_aparatito_variables(&drop_params);
+			}
 		}
 
 		if (run_video_frame && continue_loop) {
@@ -147,12 +157,6 @@ int main(void)
 			screen_data.wave = &audio_info.chunk;
 			screen_data.fft = &audio_info.fft;
 			continue_loop = screen_loop(&screen_data);
-		}
-
-		if (frame_number % 50 == 0) {
-			turn_off();
-		} else {
-			turn_on();
 		}
 	}
 
