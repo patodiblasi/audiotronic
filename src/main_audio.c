@@ -2,8 +2,9 @@
 #include <errno.h>
 #include "log/src/log.h"
 
-#define MIN_FREQ 30
+#define MIN_FREQ 20
 #define MAX_FREQ 22050
+#define EOF_COUNT_BEFORE_RESTART 10
 
 int _audio_eof_count = 0; // Cuenta la cantidad de EOF seguidos que tuve al leer el audio
 
@@ -48,7 +49,7 @@ int check_stream(FILE* stream)
 int open_audio(t_audio_info* audio_info)
 {
 	if (audio_info->audio_in.stream) {
-		if (_audio_eof_count < 5) {
+		if (_audio_eof_count < EOF_COUNT_BEFORE_RESTART) {
 			// Ya hay un stream abierto y responde bien, no hago nada
 			return 1;
 		} else {
